@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
-import { Search, Filter, Eye, MoreVertical, XCircle, FileText } from 'lucide-react';
+import { Search, Filter, Eye, MoreVertical, XCircle, FileText, CheckCircle2 } from 'lucide-react';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import type { BookingDetail } from '@/types';
 import toast from 'react-hot-toast';
@@ -47,6 +47,27 @@ export default function BookingsTable() {
       }
     } catch {
       toast.error('Error cancelling');
+    }
+  };
+
+  const handleConfirmManual = async (id: string) => {
+    if (!confirm('Mark this booking as PAID and CONFIRM the slots manually?')) return;
+    
+    try {
+      const res = await fetch('/api/admin/bookings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bookingId: id, action: 'confirm' })
+      });
+      if (res.ok) {
+        toast.success('Booking confirmed manually');
+        fetchBookings();
+      } else {
+        const err = await res.json();
+        toast.error(err.error || 'Failed to confirm');
+      }
+    } catch {
+      toast.error('Error confirming');
     }
   };
 
@@ -114,15 +135,26 @@ export default function BookingsTable() {
                   {formatCurrency(b.totalAmount)}
                 </td>
                 <td className="p-4">
-                  <span className={`px-2 py-1 rounded text-xs font-medium uppercase tracking-wider ${
+                  <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${
                     b.bookingStatus === 'cancelled' 
                       ? 'bg-red-900/20 text-red-400 border border-red-800'
+                      : b.bookingStatus === 'pending'
+                      ? 'bg-yellow-900/20 text-yellow-400 border border-yellow-800'
                       : 'bg-green-900/20 text-green-400 border border-green-800'
                   }`}>
                     {b.bookingStatus}
                   </span>
                 </td>
-                <td className="p-4 text-right">
+                <td className="p-4 text-right flex justify-end gap-2">
+                  {b.bookingStatus === 'pending' && (
+                    <button 
+                      onClick={() => handleConfirmManual(b.id)}
+                      className="text-green-400 hover:text-green-300 p-2 rounded-lg hover:bg-green-900/20 transition-colors"
+                      title="Mark as Paid"
+                    >
+                      <CheckCircle2 size={18} />
+                    </button>
+                  )}
                   <button 
                     onClick={() => handleCancel(b.id)}
                     disabled={b.bookingStatus === 'cancelled'}

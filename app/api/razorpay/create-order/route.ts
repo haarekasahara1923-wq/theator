@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { razorpay } from '@/lib/razorpay';
 import { redis } from '@/lib/redis';
+import { db } from '@/lib/db';
+import { bookings } from '@/lib/schema';
 
 export async function POST(req: NextRequest) {
   try {
@@ -61,6 +62,31 @@ export async function POST(req: NextRequest) {
         screen: bookingData.screenName,
         date: bookingData.bookingDate,
       },
+    });
+
+    // Generate a temporary booking ref
+    const tempRef = `TEMP-${Date.now()}-${bookingData.customerMobile.slice(-4)}`;
+
+    // Insert pending booking for tracking and manual confirmations
+    await db.insert(bookings).values({
+      bookingRef: tempRef,
+      screenId: screenId,
+      bookingDate: date,
+      startSlotId: bookingData.startSlotId,
+      endSlotId: bookingData.endSlotId,
+      totalHours: bookingData.totalHours,
+      partyType: bookingData.partyType,
+      personsCount: bookingData.personsCount,
+      customerName: bookingData.customerName,
+      customerMobile: bookingData.customerMobile,
+      customerEmail: bookingData.customerEmail || null,
+      specialRequests: bookingData.specialRequests || null,
+      amountPerHour: bookingData.amountPerHour,
+      totalAmount: amount,
+      paymentStatus: 'pending',
+      bookingStatus: 'pending',
+      razorpayOrderId: order.id,
+      complementaryItems: bookingData.complementaryItems || null,
     });
 
     return NextResponse.json({

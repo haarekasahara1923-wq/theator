@@ -35,28 +35,18 @@ export async function POST(req: NextRequest) {
     await redis.expire(countKey, 86400 * 2);
     const bookingRef = `NVT-${today}-${screenLetter}-${String(seq).padStart(3, '0')}`;
 
-    // 3. Insert booking into DB
-    const [booking] = await db.insert(bookings).values({
+    // 3. Update existing booking in DB
+    const [booking] = await db.update(bookings).set({
       bookingRef,
-      screenId: bookingData.screenId,
-      bookingDate: bookingData.bookingDate,
-      startSlotId: bookingData.startSlotId,
-      endSlotId: bookingData.endSlotId,
-      totalHours: bookingData.totalHours,
-      partyType: bookingData.partyType,
-      personsCount: bookingData.personsCount,
-      customerName: bookingData.customerName,
-      customerMobile: bookingData.customerMobile,
-      customerEmail: bookingData.customerEmail || null,
-      specialRequests: bookingData.specialRequests || null,
-      amountPerHour: bookingData.amountPerHour,
-      totalAmount: bookingData.totalAmount,
       paymentStatus: 'paid',
-      razorpayOrderId: razorpay_order_id,
       razorpayPaymentId: razorpay_payment_id,
       bookingStatus: 'confirmed',
-      complementaryItems: bookingData.complementaryItems || null,
-    }).returning();
+    }).where(eq(bookings.razorpayOrderId, razorpay_order_id))
+    .returning();
+
+    if (!booking) {
+      return NextResponse.json({ error: 'Original booking not found' }, { status: 404 });
+    }
 
     // 4. Update slot availability - mark all slots in range as booked
     const allSlots = await db.select().from(timeSlots)

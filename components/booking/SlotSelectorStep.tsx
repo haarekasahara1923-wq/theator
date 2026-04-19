@@ -79,7 +79,7 @@ export default function SlotSelectorStep() {
       return;
     }
 
-    if (!startOrder || !endOrder) {
+    if (startOrder === null || endOrder === null) {
       setStartOrder(slot.slotOrder);
       setEndOrder(slot.slotOrder + 1);
       setShowMoreModal(true);
@@ -109,7 +109,7 @@ export default function SlotSelectorStep() {
 
   // Validate range: all slots in [startOrder, endOrder) must be available
   const isRangeValid = useCallback(() => {
-    if (!startOrder || !endOrder || !selectedScreen || !availability) return false;
+    if (startOrder === null || endOrder === null || !selectedScreen || !availability) return false;
     const slots = availability.slots.filter(
       s => s.slotOrder >= startOrder && s.slotOrder < endOrder
     );
@@ -117,7 +117,18 @@ export default function SlotSelectorStep() {
   }, [startOrder, endOrder, selectedScreen, availability]);
 
   const handleNext = () => {
-    if (!selectedScreen || !startOrder || !endOrder || !availability) return;
+    if (!selectedScreen) {
+      toast.error('Please select a screen');
+      return;
+    }
+    if (startOrder === null || endOrder === null) {
+      toast.error('Please select at least one time slot');
+      return;
+    }
+    if (!availability) {
+      toast.error('Availability data missing. Please refresh.');
+      return;
+    }
 
     if (!isRangeValid()) {
       setSelectionError('This time range is not fully available. Please choose another slot.');
@@ -282,7 +293,7 @@ export default function SlotSelectorStep() {
       )}
 
       {/* Selection summary */}
-      {startOrder && availability && (
+      {startOrder !== null && availability && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -296,7 +307,7 @@ export default function SlotSelectorStep() {
           ) : (
             <div className="text-sm text-[#D4AF37]">
               <strong>Screen {selectedScreen}</strong> —{' '}
-              {startOrder && endOrder ? (
+              {startOrder !== null && endOrder !== null ? (
                 <>
                   {availability.slots.find(s => s.slotOrder === startOrder)?.slotLabel?.split('–')[0]} –{' '}
                   {availability.slots.find(s => s.slotOrder === endOrder - 1)?.slotLabel?.split('–')[1]} (
@@ -320,12 +331,11 @@ export default function SlotSelectorStep() {
         </button>
         <motion.button
           onClick={handleNext}
-          disabled={!canProceed}
-          whileHover={canProceed ? { scale: 1.02 } : {}}
-          whileTap={canProceed ? { scale: 0.98 } : {}}
-          className="flex-1 py-3 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#B8960C] text-[#0A0A0F] font-bold flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed transition-all hover:shadow-[0_0_24px_rgba(212,175,55,0.4)]"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className="flex-1 py-3 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#B8960C] text-[#0A0A0F] font-bold flex items-center justify-center gap-2 transition-all hover:shadow-[0_0_24px_rgba(212,175,55,0.4)]"
         >
-          Proceed to Checkout <ArrowRight size={16} />
+          Proceed to Party Details <ArrowRight size={16} />
         </motion.button>
       </div>
 
@@ -339,7 +349,7 @@ export default function SlotSelectorStep() {
           >
             <h3 className="text-xl font-bold font-heading text-[#F7FAFC] mb-2">Book more slots?</h3>
             <p className="text-[#A0AEC0] text-sm mb-6">
-              You have currently selected {(endOrder || 0) - (startOrder || 0)} hour(s). Do you want to select more continuous slots?
+              You have currently selected {(endOrder !== null && startOrder !== null) ? endOrder - startOrder : 0} hour(s). Do you want to select more continuous slots?
             </p>
             <div className="flex gap-3">
               <button
