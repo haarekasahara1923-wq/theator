@@ -13,6 +13,12 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Date is required' }, { status: 400 });
     }
 
+    // Helper for IST time comparison
+    const now = new Date();
+    const istTime = new Date(now.getTime() + (5.5 * 60 * 60 * 1000));
+    const todayIST = istTime.toISOString().split('T')[0];
+    const currentTimeStr = istTime.toISOString().split('T')[1].slice(0, 5); // "HH:MM"
+
     // Check Redis cache first
     const cacheKey = `availability:${date}`;
     const cached = await redis.get(cacheKey).catch(() => null);
@@ -46,13 +52,17 @@ export async function GET(req: NextRequest) {
     // Build slot matrix
     const slots = allSlots.map(slot => {
       const getStatus = (screenId: string) => {
+        // If the date is TODAY and the slot time has passed, treat it as available (or vacated)
+        if (date === todayIST && slot.endTime < currentTimeStr) {
+          return { status: 'available' as const, bookingId: undefined, customerName: undefined };
+        }
+
         const avail = availability.find(
           a => a.screenId === screenId && a.timeSlotId === slot.id
         );
 
         if (!avail) return { status: 'available' as const, bookingId: undefined, customerName: undefined };
 
-        // Check Redis lock
         return {
           status: avail.status as 'available' | 'booked' | 'locked' | 'blocked',
           bookingId: avail.bookingId ?? undefined,
