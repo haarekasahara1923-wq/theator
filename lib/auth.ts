@@ -1,7 +1,7 @@
 import { SignJWT, jwtVerify } from 'jose';
 import bcrypt from 'bcryptjs';
 
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET!);
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'dummy_secret_for_build_time_only');
 
 export interface AdminPayload {
   adminId: string;
