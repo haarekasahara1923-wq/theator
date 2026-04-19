@@ -1,4 +1,5 @@
 import { Resend } from 'resend';
+import PDFDocument from 'pdfkit';
 
 export const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy');
 
@@ -77,16 +78,86 @@ export function generateEmailHTML(data: BookingEmailData): string {
 </html>`;
 }
 
+export function generateTicketPDF(data: BookingEmailData): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    try {
+      const doc = new PDFDocument({ size: 'A4', margin: 50 });
+      const buffers: Buffer[] = [];
+      doc.on('data', buffers.push.bind(buffers));
+      doc.on('end', () => resolve(Buffer.concat(buffers)));
+
+      // Ticket Header
+      doc.fontSize(30).fillColor('#D4AF37').text('NV THEATRE', { align: 'center' });
+      doc.fontSize(12).fillColor('#666666').text('PRIVATE CINE EXPERIENCE', { align: 'center' });
+      doc.moveDown(2);
+
+      // Box
+      doc.rect(50, doc.y, 495, 300).stroke('#D4AF37');
+      doc.moveDown();
+      
+      const startX = 70;
+      doc.fontSize(18).fillColor('#000000').text('Booking Ticket', { align: 'center' });
+      doc.moveDown();
+
+      // Details
+      doc.fontSize(12);
+      doc.text(`Booking Reference: `, startX).fillColor('#000000').text(data.bookingRef, startX + 150, doc.y - 12);
+      doc.moveDown(0.5);
+      doc.text(`Customer Name: `, startX).text(data.customerName, startX + 150, doc.y - 12);
+      doc.moveDown(0.5);
+      doc.text(`Date: `, startX).text(data.bookingDate, startX + 150, doc.y - 12);
+      doc.moveDown(0.5);
+      doc.text(`Screen: `, startX).text(data.screenName, startX + 150, doc.y - 12);
+      doc.moveDown(0.5);
+      doc.text(`Time: `, startX).text(`${data.startTime} - ${data.endTime} (${data.totalHours} hrs)`, startX + 150, doc.y - 12);
+      doc.moveDown(0.5);
+      doc.text(`Party: `, startX).text(`${data.partyType} (${data.personsCount} persons)`, startX + 150, doc.y - 12);
+      doc.moveDown(0.5);
+      if (data.complementaryList) {
+        doc.text(`Extras: `, startX).text(data.complementaryList, startX + 150, doc.y - 12);
+        doc.moveDown(0.5);
+      }
+      doc.text(`Amount Paid: `, startX).fillColor('#38A169').text(`INR ${data.totalAmount.toLocaleString('en-IN')}`, startX + 150, doc.y - 12);
+      
+      doc.moveDown(4);
+      doc.fillColor('#666666').fontSize(10).text('Please arrive 10 minutes before your slot time and show this e-ticket at the reception.', { align: 'center' });
+      doc.text('For queries, contact support.', { align: 'center' });
+
+      doc.end();
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+
 export async function sendBookingConfirmationEmail(data: BookingEmailData) {
   if (!data.customerEmail) return { success: false, error: 'No email provided' };
 
   try {
-    const result = await resend.emails.send({
+    let pdfBuffer: Buffer | undefined;
+    try {
+      pdfBuffer = await generateTicketPDF(data);
+    } catch (pdfErr) {
+      console.error('PDF Generation failed:', pdfErr);
+    }
+
+    const payload: any = {
       from: process.env.RESEND_FROM_EMAIL || 'NV Theatre <bookings@nvtheatre.in>',
       to: data.customerEmail,
       subject: `🎬 NV Theatre Booking Confirmed — #${data.bookingRef}`,
       html: generateEmailHTML(data),
-    });
+    };
+
+    if (pdfBuffer) {
+      payload.attachments = [
+        {
+          filename: `NV_Theatre_Ticket_${data.bookingRef}.pdf`,
+          content: pdfBuffer,
+        },
+      ];
+    }
+
+    const result = await resend.emails.send(payload);
     return { success: true, id: result.data?.id };
   } catch (error) {
     console.error('Email send error:', error);

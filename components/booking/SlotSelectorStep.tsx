@@ -23,6 +23,9 @@ export default function SlotSelectorStep() {
   const [startOrder, setStartOrder] = useState<number | null>(formData.startSlotOrder ?? null);
   const [endOrder, setEndOrder] = useState<number | null>(formData.endSlotOrder ?? null);
   const [selectionError, setSelectionError] = useState<string | null>(null);
+  
+  // Real-time and popup states
+  const [showMoreModal, setShowMoreModal] = useState(false);
 
   const fetchAvailability = useCallback(async () => {
     setLoading(true);
@@ -41,6 +44,20 @@ export default function SlotSelectorStep() {
 
   useEffect(() => {
     if (formData.bookingDate) fetchAvailability();
+    
+    // Real-time polling every 5 seconds
+    const interval = setInterval(() => {
+      if (formData.bookingDate) {
+        fetch(`/api/availability?date=${formData.bookingDate}`)
+          .then(res => res.ok ? res.json() : null)
+          .then(data => {
+            if (data) setAvailability(data);
+          })
+          .catch(console.error);
+      }
+    }, 5000);
+    
+    return () => clearInterval(interval);
   }, [formData.bookingDate, fetchAvailability]);
 
   const getSlotStatus = (slot: SlotStatus, screen: ScreenChoice) =>
@@ -58,24 +75,32 @@ export default function SlotSelectorStep() {
     if (status !== 'available') return;
     setSelectionError(null);
 
-    if (!startOrder) {
+    if (!startOrder || !endOrder) {
       setStartOrder(slot.slotOrder);
-      setEndOrder(null);
-    } else if (!endOrder) {
-      if (slot.slotOrder === startOrder) {
-        // Single hour: start = slot, end = slot+1
-        setEndOrder(slot.slotOrder + 1);
-      } else if (slot.slotOrder < startOrder) {
-        setStartOrder(slot.slotOrder);
-        setEndOrder(null);
-      } else {
-        setEndOrder(slot.slotOrder + 1);
-      }
+      setEndOrder(slot.slotOrder + 1);
+      setShowMoreModal(true);
     } else {
-      // Reset and start fresh
-      setStartOrder(slot.slotOrder);
-      setEndOrder(null);
+      // Trying to add another slot for continuous booking
+      if (slot.slotOrder === endOrder) {
+        setEndOrder(slot.slotOrder + 1);
+        setShowMoreModal(true);
+      } else if (slot.slotOrder === startOrder - 1) {
+        setStartOrder(slot.slotOrder);
+        setShowMoreModal(true);
+      } else if (slot.slotOrder >= startOrder && slot.slotOrder < endOrder) {
+        // Clicking already selected slot clears it and resets
+        setStartOrder(slot.slotOrder);
+        setEndOrder(slot.slotOrder + 1);
+        setShowMoreModal(true);
+      } else {
+        toast.error('Please select continuous adjacent slots.');
+      }
     }
+  };
+
+  const handleModalNoResult = () => {
+    setShowMoreModal(false);
+    handleNext(); // Proceed to next steps automatically
   };
 
   // Validate range: all slots in [startOrder, endOrder) must be available
@@ -123,10 +148,8 @@ export default function SlotSelectorStep() {
       slot.slotOrder >= startOrder &&
       slot.slotOrder < endOrder &&
       selectedScreen === screen;
-    const isStart = startOrder === slot.slotOrder && selectedScreen === screen && !endOrder;
 
-    if (isInRange) return 'slot-selected';
-    if (isStart) return 'slot-selected ring-2 ring-yellow-500';
+    if (isInRange) return 'slot-selected ring-2 ring-yellow-500';
     switch (status) {
       case 'available': return 'slot-available';
       case 'booked': return 'slot-booked';
@@ -298,9 +321,39 @@ export default function SlotSelectorStep() {
           whileTap={canProceed ? { scale: 0.98 } : {}}
           className="flex-1 py-3 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#B8960C] text-[#0A0A0F] font-bold flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed transition-all hover:shadow-[0_0_24px_rgba(212,175,55,0.4)]"
         >
-          Continue to Party Type <ArrowRight size={16} />
+          Proceed to Checkout <ArrowRight size={16} />
         </motion.button>
       </div>
+
+      {/* Book More Slots Modal */}
+      {showMoreModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-[#12121A] border border-[#1E1E2E] p-6 rounded-2xl shadow-2xl max-w-sm w-full"
+          >
+            <h3 className="text-xl font-bold font-heading text-[#F7FAFC] mb-2">Book more slots?</h3>
+            <p className="text-[#A0AEC0] text-sm mb-6">
+              You have currently selected {(endOrder || 0) - (startOrder || 0)} hour(s). Do you want to select more continuous slots?
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={handleModalNoResult}
+                className="flex-1 py-3 px-4 rounded-xl border border-[#1E1E2E] text-[#F7FAFC] font-medium hover:border-[#D4AF37]/30 transition-all bg-[#0A0A0F]"
+              >
+                No, Checkout
+              </button>
+              <button
+                onClick={() => setShowMoreModal(false)}
+                className="flex-1 py-3 px-4 rounded-xl bg-[#D4AF37] text-[#0A0A0F] font-bold hover:shadow-[0_0_15px_rgba(212,175,55,0.4)] transition-all"
+              >
+                Yes, Select More
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }
