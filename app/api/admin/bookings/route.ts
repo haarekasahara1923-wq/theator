@@ -91,7 +91,7 @@ export async function PATCH(req: NextRequest) {
       }
 
       // Generate final ref
-      const screen = await db.select().from(screens).where(eq(screens.id, booking.screenId)).limit(1);
+      const screen = await db.select().from(screens).where(eq(screens.id, booking.screenId!)).limit(1);
       const screenLetter = screen[0]?.name.includes('A') ? 'A' : 'B';
       const today = booking.bookingDate.replace(/-/g, '');
       const countKey = `booking_seq:${today}:${screenLetter}`;
@@ -115,8 +115,8 @@ export async function PATCH(req: NextRequest) {
       // Actually, we need to find slots between start and end.
       // But verify uses slotOrder.
       // Let's get slotOrder for start and end first.
-      const [startSlot] = await db.select().from(timeSlots).where(eq(timeSlots.id, booking.startSlotId)).limit(1);
-      const [endSlot] = await db.select().from(timeSlots).where(eq(timeSlots.id, booking.endSlotId)).limit(1);
+      const [startSlot] = await db.select().from(timeSlots).where(eq(timeSlots.id, booking.startSlotId!)).limit(1);
+      const [endSlot] = await db.select().from(timeSlots).where(eq(timeSlots.id, booking.endSlotId!)).limit(1);
 
       if (startSlot && endSlot) {
         const allRangeSlots = await db.select().from(timeSlots)
@@ -124,7 +124,7 @@ export async function PATCH(req: NextRequest) {
         
         for (const s of allRangeSlots) {
           await db.insert(screenSlotAvailability).values({
-            screenId: booking.screenId,
+            screenId: booking.screenId!,
             timeSlotId: s.id,
             bookingDate: booking.bookingDate,
             status: 'booked',
