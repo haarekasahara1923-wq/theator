@@ -66,14 +66,18 @@ export default function SlotSelectorStep() {
   const getScreenId = (screen: ScreenChoice) =>
     screen === 'A' ? availability?.screenAId : availability?.screenBId;
 
-  const handleSlotClick = (slot: SlotStatus) => {
-    if (!selectedScreen) {
-      toast.error('Please choose a screen first');
-      return;
-    }
-    const status = getSlotStatus(slot, selectedScreen);
+  const handleSlotClick = (slot: SlotStatus, screen: ScreenChoice) => {
+    const status = getSlotStatus(slot, screen);
     if (status !== 'available') return;
     setSelectionError(null);
+
+    if (screen !== selectedScreen) {
+      setSelectedScreen(screen);
+      setStartOrder(slot.slotOrder);
+      setEndOrder(slot.slotOrder + 1);
+      setShowMoreModal(true);
+      return;
+    }
 
     if (!startOrder || !endOrder) {
       setStartOrder(slot.slotOrder);
@@ -256,13 +260,13 @@ export default function SlotSelectorStep() {
               <div className="space-y-2">
                 {availability.slots.map((slot) => {
                   const status = getSlotStatus(slot, screen);
-                  const isClickable = status === 'available' && selectedScreen === screen;
+                  const isClickable = status === 'available';
                   return (
                     <motion.button
                       key={slot.slotId}
                       whileHover={isClickable ? { scale: 1.02 } : {}}
                       whileTap={isClickable ? { scale: 0.98 } : {}}
-                      onClick={() => handleSlotClick(slot)}
+                      onClick={() => handleSlotClick(slot, screen)}
                       disabled={!isClickable}
                       className={`w-full px-3 py-3 rounded-lg text-sm transition-all duration-200 flex items-center justify-between min-h-[52px] ${getSlotClass(slot, screen)}`}
                     >
