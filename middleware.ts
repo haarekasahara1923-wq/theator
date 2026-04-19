@@ -15,6 +15,11 @@ export async function middleware(req: NextRequest) {
     // Allow login page
     if (pathname === '/admin/login') return NextResponse.next();
 
+    // Allow public GET for pricing and complementary (needed for booking flow)
+    if (req.method === 'GET' && (pathname === '/api/admin/pricing' || pathname === '/api/admin/complementary')) {
+      return NextResponse.next();
+    }
+
     const token = req.cookies.get('nv_admin_token')?.value;
     if (!token) {
       if (pathname.startsWith('/api/')) {
