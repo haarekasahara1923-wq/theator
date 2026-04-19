@@ -36,7 +36,7 @@ export default function OrderSummaryStep() {
       }
 
       // Get slot IDs for locking
-      const slots = [];
+      const slots: number[] = [];
       if (formData.startSlotOrder && formData.endSlotOrder) {
         for (let i = formData.startSlotOrder; i < formData.endSlotOrder; i++) {
           slots.push(i);

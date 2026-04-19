@@ -70,7 +70,7 @@ export default function BookPage() {
             <motion.div
               className="h-full bg-gradient-to-r from-[#D4AF37] to-[#E8C84A] rounded-full step-fill"
               animate={{ width: `${((step - 1) / (STEPS.length - 1)) * 100}%` }}
-              transition={{ duration: 0.5, ease: 'easeInOut' }}
+              transition={{ duration: 0.5 }}
             />
           </div>
         </div>
@@ -84,7 +84,7 @@ export default function BookPage() {
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -30 }}
-            transition={{ duration: 0.3, ease: 'easeOut' }}
+            transition={{ duration: 0.3 }}
           >
             {step === 1 && <DatePickerStep />}
             {step === 2 && <SlotSelectorStep />}
