@@ -109,11 +109,6 @@ export async function PATCH(req: NextRequest) {
         .returning();
 
       // Mark slots as booked
-      const slots = await db.select().from(timeSlots)
-        .where(and(gte(timeSlots.slotOrder, booking.startSlotId), lte(timeSlots.slotOrder, booking.endSlotId))); // Wait, schema uses UUIDs for startSlotId, but we saved slotOrder earlier? No, schema uses UUIDs.
-      
-      // Actually, we need to find slots between start and end.
-      // But verify uses slotOrder.
       // Let's get slotOrder for start and end first.
       const [startSlot] = await db.select().from(timeSlots).where(eq(timeSlots.id, booking.startSlotId!)).limit(1);
       const [endSlot] = await db.select().from(timeSlots).where(eq(timeSlots.id, booking.endSlotId!)).limit(1);
