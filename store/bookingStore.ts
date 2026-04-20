@@ -42,8 +42,7 @@ export const useBookingStore = create<BookingStore>()(
     {
       name: 'nv-theatre-booking',
       partialize: (state) => ({
-        step: state.step,
-        formData: state.formData,
+        // We don't persist step or formData for privacy and to ensure clean starts
       }),
     }
   )

@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Film, Clock, Users, Star, ArrowRight, Sparkles, Shield, Zap } from 'lucide-react';
+import { useBookingStore } from '@/store/bookingStore';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -15,6 +16,8 @@ const stagger = {
 };
 
 export default function HomePage() {
+  const { reset } = useBookingStore();
+
   return (
     <main className="min-h-screen overflow-x-hidden">
       {/* ─── Hero ─── */}
@@ -80,6 +83,7 @@ export default function HomePage() {
           <motion.div variants={fadeUp} className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/book"
+              onClick={() => reset()}
               className="group inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-gradient-to-r from-[#D4AF37] to-[#B8960C] text-[#0A0A0F] font-bold text-lg hover:shadow-[0_0_30px_rgba(212,175,55,0.5)] transition-all duration-300 hover:scale-105"
             >
               <Film size={20} />
@@ -185,6 +189,7 @@ export default function HomePage() {
               <div className="mt-8 pt-6 border-t border-[#1E1E2E]">
                 <Link
                   href="/book"
+                  onClick={() => reset()}
                   className="inline-flex items-center gap-2 text-[#D4AF37] font-medium hover:gap-4 transition-all duration-300 group/link"
                 >
                   Book {screen}
@@ -272,6 +277,7 @@ export default function HomePage() {
                 </ul>
                 <Link
                   href="/book"
+                  onClick={() => reset()}
                   className={`block text-center py-3 rounded-xl font-semibold transition-all duration-300 ${plan.popular
                     ? 'bg-[#D4AF37] text-[#0A0A0F] hover:bg-[#E8C84A]'
                     : 'border border-[#1E1E2E] text-[#F7FAFC] hover:border-[#D4AF37]/30'
@@ -411,6 +417,7 @@ export default function HomePage() {
           </p>
           <Link
             href="/book"
+            onClick={() => reset()}
             className="inline-flex items-center gap-3 px-10 py-4 rounded-2xl bg-gradient-to-r from-[#D4AF37] to-[#B8960C] text-[#0A0A0F] font-bold text-lg hover:shadow-[0_0_40px_rgba(212,175,55,0.5)] transition-all duration-300 hover:scale-105 gold-pulse"
           >
             <Film size={22} />
