@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
 
     for (const slotId of slotIds) {
       const lockKey = `slot_lock:${screenId}:${date}:${slotId}`;
-      const locked = await redis.set(lockKey, sessionId, { nx: true, ex: 600 }).catch(() => null);
+      const locked = await redis.set(lockKey, sessionId, { nx: true, ex: 300 }).catch(() => null);
       if (!locked) {
         failedLocks.push(slotId);
       } else {

@@ -89,7 +89,7 @@ export default function OrderSummaryStep() {
         theme: { color: '#D4AF37' },
         modal: {
           ondismiss: () => {
-            toast.error('Payment cancelled. Your slot hold will expire in 10 minutes.');
+            toast.error('Payment cancelled. Your slot hold will expire in 5 minutes.');
             setIsProcessing(false);
           },
         },
@@ -238,7 +238,7 @@ export default function OrderSummaryStep() {
       <div className="mt-4 p-3 rounded-xl bg-[#12121A] border border-[#1E1E2E] flex items-center gap-3">
         <Shield size={16} className="text-[#38A169]" />
         <p className="text-xs text-[#A0AEC0]">
-          Payment secured by <strong className="text-[#F7FAFC]">Razorpay</strong>. Your slot will be held for 10 minutes during checkout.
+          Payment secured by <strong className="text-[#F7FAFC]">Razorpay</strong>. Your slot will be held for <strong className="text-[#F7FAFC]">5 minutes</strong> during checkout.
         </p>
       </div>
 
