@@ -23,6 +23,9 @@ export default function SlotSelectorStep() {
   const [startOrder, setStartOrder] = useState<number | null>(formData.startSlotOrder ?? null);
   const [endOrder, setEndOrder] = useState<number | null>(formData.endSlotOrder ?? null);
   const [selectionError, setSelectionError] = useState<string | null>(null);
+  
+  // Popup state
+  const [showAdjacentPopup, setShowAdjacentPopup] = useState(false);
 
   const fetchAvailability = useCallback(async () => {
     setLoading(true);
@@ -81,6 +84,7 @@ export default function SlotSelectorStep() {
       setSelectedScreen(screen);
       setStartOrder(slot.slotOrder);
       setEndOrder(slot.slotOrder + 1);
+      setShowAdjacentPopup(true);
       return;
     }
 
@@ -88,6 +92,7 @@ export default function SlotSelectorStep() {
       // No selection yet — start fresh
       setStartOrder(slot.slotOrder);
       setEndOrder(slot.slotOrder + 1);
+      setShowAdjacentPopup(true);
     } else if (slot.slotOrder === endOrder) {
       // Extend forward by 1 slot
       setEndOrder(slot.slotOrder + 1);
@@ -102,6 +107,7 @@ export default function SlotSelectorStep() {
       // Non-adjacent slot — reset selection to this slot
       setStartOrder(slot.slotOrder);
       setEndOrder(slot.slotOrder + 1);
+      setShowAdjacentPopup(true);
     }
   };
 
@@ -162,7 +168,7 @@ export default function SlotSelectorStep() {
       slot.slotOrder < endOrder &&
       selectedScreen === screen;
 
-    if (isInRange) return 'slot-selected ring-2 ring-yellow-500';
+    if (isInRange && status === 'available') return 'slot-selected ring-2 ring-yellow-500';
     switch (status) {
       case 'available': return 'slot-available';
       case 'booked': return 'slot-booked';
@@ -348,6 +354,43 @@ export default function SlotSelectorStep() {
           <span className="text-[#D4AF37] font-semibold">Tip:</span> Click any available slot to select it. To book multiple hours, click the slot right after (or before) your current selection to extend it.
         </span>
       </motion.div>
+
+      {/* Adjacent Slot Popup Modal */}
+      {showAdjacentPopup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-[#12121A] border border-[#1E1E2E] p-6 rounded-2xl max-w-md w-full shadow-2xl relative overflow-hidden"
+          >
+            {/* Top gold accent line */}
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent opacity-50" />
+            
+            <h3 className="font-heading text-xl font-bold text-[#F7FAFC] mb-2 text-center text-gold-gradient">Multiple Slots</h3>
+            <p className="text-[#A0AEC0] text-center mb-6">
+              Do you want to book another adjacent slot to extend your time?
+            </p>
+            
+            <div className="flex gap-4">
+              <button
+                onClick={() => {
+                  setShowAdjacentPopup(false);
+                  handleNext();
+                }}
+                className="flex-1 py-2.5 px-4 rounded-xl border border-[#D4AF37]/30 text-[#D4AF37] hover:bg-[#D4AF37]/10 transition-colors font-medium"
+              >
+                No, proceed
+              </button>
+              <button
+                onClick={() => setShowAdjacentPopup(false)}
+                className="flex-1 py-2.5 px-4 rounded-xl bg-[#D4AF37] hover:bg-[#E8C84A] text-black font-bold transition-colors"
+              >
+                Yes, select more
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }
