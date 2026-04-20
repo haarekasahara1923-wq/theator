@@ -6,6 +6,7 @@ import { ArrowRight, ArrowLeft, Film, AlertTriangle, RefreshCw, Info } from 'luc
 import { useBookingStore } from '@/store/bookingStore';
 import type { ApiAvailabilityResponse, SlotStatus } from '@/types';
 import { format } from 'date-fns';
+import toast from 'react-hot-toast';
 
 type ScreenChoice = 'A' | 'B';
 
