@@ -2,11 +2,10 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, ArrowLeft, Film, AlertTriangle, RefreshCw } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Film, AlertTriangle, RefreshCw, Info } from 'lucide-react';
 import { useBookingStore } from '@/store/bookingStore';
 import type { ApiAvailabilityResponse, SlotStatus } from '@/types';
 import { format } from 'date-fns';
-import toast from 'react-hot-toast';
 
 type ScreenChoice = 'A' | 'B';
 
@@ -23,9 +22,6 @@ export default function SlotSelectorStep() {
   const [startOrder, setStartOrder] = useState<number | null>(formData.startSlotOrder ?? null);
   const [endOrder, setEndOrder] = useState<number | null>(formData.endSlotOrder ?? null);
   const [selectionError, setSelectionError] = useState<string | null>(null);
-  
-  // Real-time and popup states
-  const [showMoreModal, setShowMoreModal] = useState(false);
 
   const fetchAvailability = useCallback(async () => {
     setLoading(true);
@@ -66,45 +62,46 @@ export default function SlotSelectorStep() {
   const getScreenId = (screen: ScreenChoice) =>
     screen === 'A' ? availability?.screenAId : availability?.screenBId;
 
+  /**
+   * Slot click logic (no popup):
+   * - Click any available slot → instantly selects it as a 1-hour booking
+   * - Click the slot immediately AFTER current selection → extends by 1 hr
+   * - Click the slot immediately BEFORE current selection → extends backwards by 1 hr
+   * - Click already-selected slot → keep it (deselect middle not supported; reset to that 1 slot)
+   * - Click non-adjacent available slot → reset selection to that slot
+   */
   const handleSlotClick = (slot: SlotStatus, screen: ScreenChoice) => {
     const status = getSlotStatus(slot, screen);
     if (status !== 'available') return;
     setSelectionError(null);
 
+    // Switching screen resets selection
     if (screen !== selectedScreen) {
       setSelectedScreen(screen);
       setStartOrder(slot.slotOrder);
       setEndOrder(slot.slotOrder + 1);
-      setShowMoreModal(true);
       return;
     }
 
     if (startOrder === null || endOrder === null) {
+      // No selection yet — start fresh
       setStartOrder(slot.slotOrder);
       setEndOrder(slot.slotOrder + 1);
-      setShowMoreModal(true);
+    } else if (slot.slotOrder === endOrder) {
+      // Extend forward by 1 slot
+      setEndOrder(slot.slotOrder + 1);
+    } else if (slot.slotOrder === startOrder - 1) {
+      // Extend backward by 1 slot
+      setStartOrder(slot.slotOrder);
+    } else if (slot.slotOrder >= startOrder && slot.slotOrder < endOrder) {
+      // Clicked inside existing selection — shrink to just this slot
+      setStartOrder(slot.slotOrder);
+      setEndOrder(slot.slotOrder + 1);
     } else {
-      // Trying to add another slot for continuous booking
-      if (slot.slotOrder === endOrder) {
-        setEndOrder(slot.slotOrder + 1);
-        setShowMoreModal(true);
-      } else if (slot.slotOrder === startOrder - 1) {
-        setStartOrder(slot.slotOrder);
-        setShowMoreModal(true);
-      } else if (slot.slotOrder >= startOrder && slot.slotOrder < endOrder) {
-        // Clicking already selected slot clears it and resets
-        setStartOrder(slot.slotOrder);
-        setEndOrder(slot.slotOrder + 1);
-        setShowMoreModal(true);
-      } else {
-        toast.error('Please select continuous adjacent slots.');
-      }
+      // Non-adjacent slot — reset selection to this slot
+      setStartOrder(slot.slotOrder);
+      setEndOrder(slot.slotOrder + 1);
     }
-  };
-
-  const handleModalNoResult = () => {
-    setShowMoreModal(false);
-    handleNext(); // Proceed to next steps automatically
   };
 
   // Validate range: all slots in [startOrder, endOrder) must be available
@@ -339,35 +336,17 @@ export default function SlotSelectorStep() {
         </motion.button>
       </div>
 
-      {/* Book More Slots Modal */}
-      {showMoreModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-[#12121A] border border-[#1E1E2E] p-6 rounded-2xl shadow-2xl max-w-sm w-full"
-          >
-            <h3 className="text-xl font-bold font-heading text-[#F7FAFC] mb-2">Book more slots?</h3>
-            <p className="text-[#A0AEC0] text-sm mb-6">
-              You have currently selected {(endOrder !== null && startOrder !== null) ? endOrder - startOrder : 0} hour(s). Do you want to select more continuous slots?
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={handleModalNoResult}
-                className="flex-1 py-3 px-4 rounded-xl border border-[#1E1E2E] text-[#F7FAFC] font-medium hover:border-[#D4AF37]/30 transition-all bg-[#0A0A0F]"
-              >
-                No, Checkout
-              </button>
-              <button
-                onClick={() => setShowMoreModal(false)}
-                className="flex-1 py-3 px-4 rounded-xl bg-[#D4AF37] text-[#0A0A0F] font-bold hover:shadow-[0_0_15px_rgba(212,175,55,0.4)] transition-all"
-              >
-                Yes, Select More
-              </button>
-            </div>
-          </motion.div>
-        </div>
-      )}
+      {/* Tip banner for multi-slot booking */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="mt-3 flex items-start gap-2 text-xs text-[#A0AEC0] bg-[#12121A] border border-[#1E1E2E] rounded-xl px-4 py-3"
+      >
+        <Info size={14} className="mt-0.5 text-[#D4AF37] shrink-0" />
+        <span>
+          <span className="text-[#D4AF37] font-semibold">Tip:</span> Click any available slot to select it. To book multiple hours, click the slot right after (or before) your current selection to extend it.
+        </span>
+      </motion.div>
     </div>
   );
 }
