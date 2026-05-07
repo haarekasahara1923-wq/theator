@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, ArrowLeft, Film, AlertTriangle, RefreshCw, Info } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Film, AlertTriangle, RefreshCw, Info, Gift } from 'lucide-react';
 import { useBookingStore } from '@/store/bookingStore';
 import type { ApiAvailabilityResponse, SlotStatus } from '@/types';
 import { format } from 'date-fns';
