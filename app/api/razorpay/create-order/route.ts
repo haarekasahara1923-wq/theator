@@ -99,8 +99,11 @@ export async function POST(req: NextRequest) {
       lockKeys,
       sessionId,
     });
-  } catch (error) {
-    console.error('Create order error:', error);
-    return NextResponse.json({ error: 'Failed to create order' }, { status: 500 });
+  } catch (error: any) {
+    console.error('CRITICAL: Create order error:', error);
+    return NextResponse.json({ 
+      error: 'Failed to create order', 
+      details: error.message || 'Unknown error'
+    }, { status: 500 });
   }
 }
