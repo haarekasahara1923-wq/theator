@@ -31,6 +31,8 @@ export interface BookingFormData {
   partyType: 'couple' | 'group_small' | 'group_large';
   personsCount: number;
   amountPerHour: number;
+  isDecorationSelected: boolean;
+  decorationAmount: number;
   totalAmount: number;
   // Step 4
   complementaryItems: ComplementaryItemSelection[];

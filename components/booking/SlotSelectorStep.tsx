@@ -26,6 +26,26 @@ export default function SlotSelectorStep() {
   
   // Popup state
   const [showAdjacentPopup, setShowAdjacentPopup] = useState(false);
+  const [showDecorationPopup, setShowDecorationPopup] = useState(false);
+  const [decorationPrice, setDecorationPrice] = useState(800);
+
+  const fetchSettings = useCallback(async () => {
+    try {
+      const res = await fetch('/api/settings');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.decoration_price) {
+          setDecorationPrice(parseInt(data.decoration_price));
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch settings:', error);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchSettings();
+  }, [fetchSettings]);
 
   const fetchAvailability = useCallback(async () => {
     setLoading(true);
@@ -158,6 +178,15 @@ export default function SlotSelectorStep() {
       totalHours,
     });
 
+    setShowDecorationPopup(true);
+  };
+
+  const handleDecorationChoice = (selected: boolean) => {
+    updateFormData({
+      isDecorationSelected: selected,
+      decorationAmount: selected ? decorationPrice : 0,
+    });
+    setShowDecorationPopup(false);
     nextStep();
   };
 
@@ -388,6 +417,59 @@ export default function SlotSelectorStep() {
                 Yes, select more
               </button>
             </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Decoration Selection Popup */}
+      {showDecorationPopup && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-[#12121A] border border-[#D4AF37]/30 p-8 rounded-3xl max-w-md w-full shadow-[0_0_50px_rgba(212,175,55,0.15)] relative overflow-hidden"
+          >
+            {/* Elegant Header */}
+            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#D4AF37]/0 via-[#D4AF37] to-[#D4AF37]/0" />
+            
+            <div className="text-center mb-6">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-[#D4AF37]/10 border border-[#D4AF37]/20 text-[#D4AF37] mb-4">
+                <Gift size={40} className="animate-pulse" />
+              </div>
+              <h3 className="font-heading text-2xl font-bold text-[#F7FAFC] mb-2">Make it Special? ✨</h3>
+              <p className="text-[#A0AEC0]">
+                Would you like to add decoration for your celebration? Perfect for Birthdays & Anniversaries!
+              </p>
+            </div>
+
+            <div className="bg-[#1a1a2e] rounded-2xl p-4 mb-6 border border-[#1E1E2E] flex justify-between items-center">
+              <div>
+                <span className="text-sm text-[#A0AEC0] block">Decoration Charges</span>
+                <span className="text-xl font-bold text-[#D4AF37]">₹{decorationPrice}/-</span>
+              </div>
+              <div className="text-xs bg-[#D4AF37]/20 text-[#D4AF37] px-2 py-1 rounded-full font-semibold">
+                FIXED RATE
+              </div>
+            </div>
+            
+            <div className="grid gap-3">
+              <button
+                onClick={() => handleDecorationChoice(true)}
+                className="w-full py-4 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#B8960C] text-[#0A0A0F] font-bold text-lg hover:shadow-[0_0_20px_rgba(212,175,55,0.4)] transition-all flex items-center justify-center gap-2"
+              >
+                <Gift size={20} /> Yes, Book Decoration
+              </button>
+              <button
+                onClick={() => handleDecorationChoice(false)}
+                className="w-full py-3 rounded-xl border border-[#1E1E2E] text-[#A0AEC0] hover:bg-[#1E1E2E] transition-all font-medium"
+              >
+                Proceed without Decoration
+              </button>
+            </div>
+
+            <p className="mt-6 text-center text-[10px] text-[#4A5568] uppercase tracking-widest">
+              NV Theatre • Premium Experiences
+            </p>
           </motion.div>
         </div>
       )}

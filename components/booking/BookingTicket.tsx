@@ -119,10 +119,17 @@ export default function BookingTicket({ booking }: { booking: any }) {
                   <div className="text-xs text-[#A0AEC0] print:text-gray-500">{booking.personsCount} persons</div>
                 </div>
                 <div className="text-right">
-                  <div className="text-xs text-[#A0AEC0] uppercase print:text-gray-500">Customer</div>
-                  <div className="font-bold text-[#F7FAFC] print:text-black">{booking.customerName}</div>
-                  <div className="text-xs text-[#A0AEC0] print:text-gray-500">{booking.customerMobile}</div>
+                  <div className="text-xs text-[#A0AEC0] uppercase print:text-gray-500">Decoration</div>
+                  <div className={`font-bold ${booking.isDecorationSelected ? 'text-[#D4AF37]' : 'text-[#F7FAFC]'} print:text-black`}>
+                    {booking.isDecorationSelected ? 'Included ✨' : 'None'}
+                  </div>
                 </div>
+              </div>
+
+              <div className="border-t border-[#1E1E2E] pt-4">
+                <div className="text-xs text-[#A0AEC0] uppercase print:text-gray-500">Customer</div>
+                <div className="font-bold text-[#F7FAFC] print:text-black">{booking.customerName}</div>
+                <div className="text-xs text-[#A0AEC0] print:text-gray-500">{booking.customerMobile}</div>
               </div>
             </div>
             

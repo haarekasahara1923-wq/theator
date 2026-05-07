@@ -210,12 +210,18 @@ export default function OrderSummaryStep() {
           )}
 
           {/* Pricing */}
-          <div className="border-t border-[#1E1E2E] pt-4 mt-4">
-            <div className="flex items-center justify-between text-[#A0AEC0] text-sm mb-2">
+          <div className="border-t border-[#1E1E2E] pt-4 mt-4 space-y-2">
+            <div className="flex items-center justify-between text-[#A0AEC0] text-sm">
               <span>₹{formData.amountPerHour?.toLocaleString('en-IN')} × {formData.totalHours} hr{(formData.totalHours || 1) > 1 ? 's' : ''}</span>
               <span>₹{((formData.amountPerHour || 0) * (formData.totalHours || 1)).toLocaleString('en-IN')}</span>
             </div>
-            <div className="flex items-center justify-between">
+            {formData.isDecorationSelected && (
+              <div className="flex items-center justify-between text-[#A0AEC0] text-sm">
+                <span>Decoration Charges</span>
+                <span>₹{formData.decorationAmount?.toLocaleString('en-IN')}</span>
+              </div>
+            )}
+            <div className="flex items-center justify-between pt-2 border-t border-[#1E1E2E]">
               <span className="font-bold text-[#F7FAFC] text-lg">Total Amount</span>
               <span className="font-bold text-[#D4AF37] text-2xl">{formatCurrency(formData.totalAmount || 0)}</span>
             </div>

@@ -83,6 +83,8 @@ export async function POST(req: NextRequest) {
       customerEmail: bookingData.customerEmail || null,
       specialRequests: bookingData.specialRequests || null,
       amountPerHour: bookingData.amountPerHour,
+      isDecorationSelected: bookingData.isDecorationSelected || false,
+      decorationAmount: bookingData.decorationAmount || 0,
       totalAmount: amount,
       paymentStatus: 'pending',
       bookingStatus: 'pending',

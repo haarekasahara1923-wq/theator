@@ -39,7 +39,7 @@ export const screenSlotAvailability = pgTable('screen_slot_availability', {
 // ── Bookings ──────────────────────────────────────────
 export const bookings = pgTable('bookings', {
   id: uuid('id').primaryKey().defaultRandom(),
-  bookingRef: text('booking_ref').unique().notNull(),
+  bookingRef: text('booking_ref').notNull().unique(),
   screenId: uuid('screen_id').references(() => screens.id),
   bookingDate: date('booking_date').notNull(),
   startSlotId: uuid('start_slot_id').references(() => timeSlots.id),
@@ -52,6 +52,8 @@ export const bookings = pgTable('bookings', {
   customerEmail: text('customer_email'),
   specialRequests: text('special_requests'),
   amountPerHour: integer('amount_per_hour').notNull(),
+  isDecorationSelected: boolean('is_decoration_selected').default(false),
+  decorationAmount: integer('decoration_amount').default(0),
   totalAmount: integer('total_amount').notNull(),
   paymentStatus: text('payment_status').default('pending'),
   razorpayOrderId: text('razorpay_order_id'),
@@ -97,6 +99,14 @@ export const pricingConfig = pgTable('pricing_config', {
   updatedAt: timestamp('updated_at').defaultNow(),
 });
 
+// ── Settings ──────────────────────────────────────────
+export const settings = pgTable('settings', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  key: text('key').notNull().unique(),
+  value: text('value').notNull(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
 // ── Type exports ──────────────────────────────────────
 export type Screen = typeof screens.$inferSelect;
 export type TimeSlot = typeof timeSlots.$inferSelect;
@@ -105,3 +115,5 @@ export type Booking = typeof bookings.$inferSelect;
 export type ComplementaryItem = typeof complementaryItems.$inferSelect;
 export type Admin = typeof admins.$inferSelect;
 export type PricingConfig = typeof pricingConfig.$inferSelect;
+export type Setting = typeof settings.$inferSelect;
+

@@ -43,7 +43,8 @@ export default function PartyTypeStep() {
   };
 
   const selectedConfig = pricing.find(p => p.partyType === selected);
-  const totalAmount = selectedConfig ? selectedConfig.pricePerHour * (formData.totalHours || 1) : 0;
+  const hourlyTotal = selectedConfig ? selectedConfig.pricePerHour * (formData.totalHours || 1) : 0;
+  const totalAmount = hourlyTotal + (formData.decorationAmount || 0);
 
   const isPersonsValid = () => {
     if (!selectedConfig) return false;
@@ -154,9 +155,21 @@ export default function PartyTypeStep() {
           className="mt-6 p-4 rounded-xl bg-[#12121A] border border-[#1E1E2E]"
         >
           <div className="text-xs text-[#A0AEC0] mb-2 uppercase tracking-wider">Booking Summary</div>
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-[#A0AEC0]">₹{selectedConfig.pricePerHour} × {formData.totalHours} hr{(formData.totalHours || 1) > 1 ? 's' : ''}</span>
-            <span className="text-xl font-bold text-[#D4AF37]">₹{totalAmount.toLocaleString('en-IN')}</span>
+          <div className="space-y-1">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-[#A0AEC0]">Hourly: ₹{selectedConfig.pricePerHour} × {formData.totalHours} hr</span>
+              <span className="text-[#F7FAFC]">₹{hourlyTotal.toLocaleString('en-IN')}</span>
+            </div>
+            {formData.isDecorationSelected && (
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-[#A0AEC0]">Decoration Charges</span>
+                <span className="text-[#F7FAFC]">₹{formData.decorationAmount?.toLocaleString('en-IN')}</span>
+              </div>
+            )}
+            <div className="flex items-center justify-between pt-2 border-t border-[#1E1E2E] mt-2">
+              <span className="text-[#A0AEC0] font-medium">Total Amount</span>
+              <span className="text-2xl font-bold text-[#D4AF37]">₹{totalAmount.toLocaleString('en-IN')}</span>
+            </div>
           </div>
         </motion.div>
       )}

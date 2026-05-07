@@ -15,19 +15,31 @@ interface PricingConfig {
 
 export default function PricingPage() {
   const [pricing, setPricing] = useState<PricingConfig[]>([]);
+  const [decorationPrice, setDecorationPrice] = useState(800);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   const fetchPricing = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/admin/pricing');
-      if (res.ok) {
-        const data = await res.json();
+      const [pricingRes, settingsRes] = await Promise.all([
+        fetch('/api/admin/pricing'),
+        fetch('/api/settings')
+      ]);
+
+      if (pricingRes.ok) {
+        const data = await pricingRes.json();
         setPricing(data.pricing || []);
       }
+
+      if (settingsRes.ok) {
+        const settings = await settingsRes.json();
+        if (settings.decoration_price) {
+          setDecorationPrice(parseInt(settings.decoration_price));
+        }
+      }
     } catch {
-      toast.error('Failed to fetch pricing');
+      toast.error('Failed to fetch data');
     } finally {
       setLoading(false);
     }
@@ -46,18 +58,27 @@ export default function PricingPage() {
     setSaving(true);
     try {
       const updates = pricing.map(p => ({ id: p.id, pricePerHour: p.pricePerHour }));
-      const res = await fetch('/api/admin/pricing', {
+      const pricingPromise = fetch('/api/admin/pricing', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ updates })
       });
-      if (res.ok) {
-        toast.success('Pricing updated successfully');
+
+      const settingsPromise = fetch('/api/settings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: 'decoration_price', value: decorationPrice.toString() })
+      });
+
+      const [pRes, sRes] = await Promise.all([pricingPromise, settingsPromise]);
+
+      if (pRes.ok && sRes.ok) {
+        toast.success('Configuration updated successfully');
       } else {
-        toast.error('Failed to update pricing');
+        toast.error('Failed to update some settings');
       }
     } catch {
-      toast.error('Error saving pricing');
+      toast.error('Error saving changes');
     } finally {
       setSaving(false);
     }
@@ -87,6 +108,35 @@ export default function PricingPage() {
            </div>
         ) : (
           <div className="divide-y divide-[#1E1E2E]">
+            {/* Decoration Price Row */}
+            <div className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-6 bg-[#1A1A24]/30 hover:bg-[#1A1A24] transition-colors border-b-2 border-[#D4AF37]/20">
+               <div>
+                 <h3 className="font-bold text-lg text-[#D4AF37] mb-1 flex items-center gap-2">
+                   Decoration Charges ✨
+                 </h3>
+                 <p className="text-sm text-[#A0AEC0]">
+                   Fixed charges for Birthday/Anniversary decorations.
+                 </p>
+                 <div className="text-xs text-[#4A5568] mt-1 font-mono uppercase">SETTING: decoration_price</div>
+               </div>
+               
+               <div className="flex-shrink-0">
+                 <label className="text-xs text-[#A0AEC0] block mb-2 font-medium uppercase tracking-widest">Fixed Amount</label>
+                 <div className="relative">
+                   <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#A0AEC0]">
+                      <IndianRupee size={18} />
+                   </div>
+                   <input 
+                     type="number"
+                     min="0"
+                     value={decorationPrice}
+                     onChange={(e) => setDecorationPrice(parseInt(e.target.value) || 0)}
+                     className="w-full sm:w-48 pl-10 pr-4 py-3 bg-[#0A0A0F] border border-[#D4AF37]/30 rounded-xl text-xl font-bold text-[#D4AF37] outline-none focus:border-[#D4AF37] shadow-[0_0_15px_rgba(212,175,55,0.1)]"
+                   />
+                 </div>
+               </div>
+            </div>
+
             {pricing.map(p => (
                <div key={p.id} className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-6 hover:bg-[#1A1A24] transition-colors">
                   <div>
