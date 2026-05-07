@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import crypto from 'crypto';
 import { razorpay } from '@/lib/razorpay';
 import { redis } from '@/lib/redis';
 import { db } from '@/lib/db';
@@ -54,7 +55,7 @@ export async function POST(req: NextRequest) {
 
     // Create Razorpay order
     const order = await razorpay.orders.create({
-      amount: amount * 100, // paise
+      amount: Math.round(amount * 100), // paise
       currency: 'INR',
       receipt: `NVT-${Date.now()}`,
       notes: {
