@@ -23,15 +23,38 @@ const PARTY_INFO = {
 export default function PartyTypeStep() {
   const { formData, updateFormData, nextStep, prevStep } = useBookingStore();
   const [pricing, setPricing] = useState<PricingConfig[]>([]);
+  const [discountPercent, setDiscountPercent] = useState(0);
   const [selected, setSelected] = useState(formData.partyType || '');
   const [persons, setPersons] = useState(formData.personsCount || 0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/admin/pricing')
-      .then(r => r.json())
-      .then(d => setPricing(d.pricing || []))
-      .finally(() => setLoading(false));
+    const fetchData = async () => {
+      try {
+        const [pricingRes, settingsRes] = await Promise.all([
+          fetch('/api/admin/pricing'),
+          fetch('/api/settings')
+        ]);
+        
+        if (pricingRes.ok) {
+          const d = await pricingRes.json();
+          setPricing(d.pricing || []);
+        }
+        
+        if (settingsRes.ok) {
+          const s = await settingsRes.json();
+          if (s.discount_percentage) {
+            setDiscountPercent(parseInt(s.discount_percentage));
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchData();
   }, []);
 
   const handleSelect = (pt: PricingConfig) => {
@@ -44,7 +67,10 @@ export default function PartyTypeStep() {
 
   const selectedConfig = pricing.find(p => p.partyType === selected);
   const hourlyTotal = selectedConfig ? selectedConfig.pricePerHour * (formData.totalHours || 1) : 0;
-  const totalAmount = hourlyTotal + (formData.decorationAmount || 0);
+  
+  const discountAmount = Math.round(hourlyTotal * (discountPercent / 100));
+  const originalAmount = hourlyTotal + (formData.decorationAmount || 0);
+  const totalAmount = originalAmount - discountAmount;
 
   const isPersonsValid = () => {
     if (!selectedConfig) return false;
@@ -60,6 +86,8 @@ export default function PartyTypeStep() {
       partyType: selected as 'couple' | 'group_small' | 'group_large',
       personsCount: persons,
       amountPerHour: selectedConfig.pricePerHour,
+      discountAmount,
+      originalAmount,
       totalAmount,
     });
     nextStep();
@@ -109,11 +137,27 @@ export default function PartyTypeStep() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-2xl font-bold text-[#D4AF37]">₹{pt.pricePerHour}</div>
+                    <div className="flex flex-col items-end">
+                      {discountPercent > 0 ? (
+                        <>
+                          <div className="text-sm text-[#A0AEC0] line-through decoration-red-500/50 decoration-2">₹{pt.pricePerHour}</div>
+                          <div className="text-2xl font-bold text-[#D4AF37]">₹{Math.round(pt.pricePerHour * (1 - discountPercent / 100))}</div>
+                        </>
+                      ) : (
+                        <div className="text-2xl font-bold text-[#D4AF37]">₹{pt.pricePerHour}</div>
+                      )}
+                    </div>
                     <div className="text-xs text-[#A0AEC0]">per hour</div>
                     {isSelected && (
                       <div className="mt-1 text-sm font-semibold text-[#38A169]">
-                        Total: ₹{pt.pricePerHour * (formData.totalHours || 1)}
+                        {discountPercent > 0 ? (
+                          <div className="flex flex-col items-end">
+                             <span className="text-xs text-[#A0AEC0] line-through">Total: ₹{pt.pricePerHour * (formData.totalHours || 1)}</span>
+                             <span>Special: ₹{Math.round(pt.pricePerHour * (1 - discountPercent / 100) * (formData.totalHours || 1))}</span>
+                          </div>
+                        ) : (
+                          <span>Total: ₹{pt.pricePerHour * (formData.totalHours || 1)}</span>
+                        )}
                       </div>
                     )}
                   </div>
@@ -166,8 +210,22 @@ export default function PartyTypeStep() {
                 <span className="text-[#F7FAFC]">₹{formData.decorationAmount?.toLocaleString('en-IN')}</span>
               </div>
             )}
+            {discountPercent > 0 && (
+              <div className="flex items-center justify-between text-sm text-[#38A169]">
+                <span className="flex items-center gap-1.5 font-medium">
+                   <div className="w-1.5 h-1.5 rounded-full bg-[#38A169]" />
+                   Special Discount ({discountPercent}%)
+                </span>
+                <span className="font-bold">-₹{discountAmount.toLocaleString('en-IN')}</span>
+              </div>
+            )}
             <div className="flex items-center justify-between pt-2 border-t border-[#1E1E2E] mt-2">
-              <span className="text-[#A0AEC0] font-medium">Total Amount</span>
+              <div className="flex flex-col">
+                <span className="text-[#A0AEC0] font-medium">Total Amount</span>
+                {discountPercent > 0 && (
+                   <span className="text-[10px] text-[#A0AEC0] line-through">₹{originalAmount.toLocaleString('en-IN')}</span>
+                )}
+              </div>
               <span className="text-2xl font-bold text-[#D4AF37]">₹{totalAmount.toLocaleString('en-IN')}</span>
             </div>
           </div>

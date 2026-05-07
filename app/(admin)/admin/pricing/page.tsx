@@ -16,6 +16,7 @@ interface PricingConfig {
 export default function PricingPage() {
   const [pricing, setPricing] = useState<PricingConfig[]>([]);
   const [decorationPrice, setDecorationPrice] = useState(800);
+  const [discountPercent, setDiscountPercent] = useState(0);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -36,6 +37,9 @@ export default function PricingPage() {
         const settings = await settingsRes.json();
         if (settings.decoration_price) {
           setDecorationPrice(parseInt(settings.decoration_price));
+        }
+        if (settings.discount_percentage) {
+          setDiscountPercent(parseInt(settings.discount_percentage));
         }
       }
     } catch {
@@ -64,15 +68,21 @@ export default function PricingPage() {
         body: JSON.stringify({ updates })
       });
 
-      const settingsPromise = fetch('/api/settings', {
+      const decorationPromise = fetch('/api/settings', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ key: 'decoration_price', value: decorationPrice.toString() })
       });
 
-      const [pRes, sRes] = await Promise.all([pricingPromise, settingsPromise]);
+      const discountPromise = fetch('/api/settings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: 'discount_percentage', value: discountPercent.toString() })
+      });
 
-      if (pRes.ok && sRes.ok) {
+      const [pRes, dRes, disRes] = await Promise.all([pricingPromise, decorationPromise, discountPromise]);
+
+      if (pRes.ok && dRes.ok && disRes.ok) {
         toast.success('Configuration updated successfully');
       } else {
         toast.error('Failed to update some settings');
@@ -132,6 +142,36 @@ export default function PricingPage() {
                      value={decorationPrice}
                      onChange={(e) => setDecorationPrice(parseInt(e.target.value) || 0)}
                      className="w-full sm:w-48 pl-10 pr-4 py-3 bg-[#0A0A0F] border border-[#D4AF37]/30 rounded-xl text-xl font-bold text-[#D4AF37] outline-none focus:border-[#D4AF37] shadow-[0_0_15px_rgba(212,175,55,0.1)]"
+                   />
+                 </div>
+               </div>
+            </div>
+
+            {/* Discount Percentage Row */}
+            <div className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-6 bg-[#38A169]/5 hover:bg-[#38A169]/10 transition-colors border-b-2 border-[#38A169]/20">
+               <div>
+                 <h3 className="font-bold text-lg text-[#38A169] mb-1 flex items-center gap-2">
+                   Global Discount % 🏷️
+                 </h3>
+                 <p className="text-sm text-[#A0AEC0]">
+                   Apply a percentage discount to all theatre bookings.
+                 </p>
+                 <div className="text-xs text-[#4A5568] mt-1 font-mono uppercase">SETTING: discount_percentage</div>
+               </div>
+               
+               <div className="flex-shrink-0">
+                 <label className="text-xs text-[#A0AEC0] block mb-2 font-medium uppercase tracking-widest">Discount (%)</label>
+                 <div className="relative">
+                   <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[#A0AEC0] font-bold">
+                      %
+                   </div>
+                   <input 
+                     type="number"
+                     min="0"
+                     max="100"
+                     value={discountPercent}
+                     onChange={(e) => setDiscountPercent(parseInt(e.target.value) || 0)}
+                     className="w-full sm:w-48 pr-10 pl-4 py-3 bg-[#0A0A0F] border border-[#38A169]/30 rounded-xl text-xl font-bold text-[#38A169] outline-none focus:border-[#38A169] shadow-[0_0_15px_rgba(56,161,105,0.1)]"
                    />
                  </div>
                </div>

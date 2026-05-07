@@ -221,8 +221,19 @@ export default function OrderSummaryStep() {
                 <span>₹{formData.decorationAmount?.toLocaleString('en-IN')}</span>
               </div>
             )}
+            {formData.discountAmount && formData.discountAmount > 0 && (
+              <div className="flex items-center justify-between text-[#38A169] text-sm font-medium">
+                <span>Special Discount</span>
+                <span>-₹{formData.discountAmount?.toLocaleString('en-IN')}</span>
+              </div>
+            )}
             <div className="flex items-center justify-between pt-2 border-t border-[#1E1E2E]">
-              <span className="font-bold text-[#F7FAFC] text-lg">Total Amount</span>
+              <div className="flex flex-col">
+                <span className="font-bold text-[#F7FAFC] text-lg">Total Amount</span>
+                {formData.discountAmount && formData.discountAmount > 0 && (
+                  <span className="text-[10px] text-[#A0AEC0] line-through font-medium">₹{formData.originalAmount?.toLocaleString('en-IN')}</span>
+                )}
+              </div>
               <span className="font-bold text-[#D4AF37] text-2xl">{formatCurrency(formData.totalAmount || 0)}</span>
             </div>
           </div>

@@ -54,6 +54,7 @@ export const bookings = pgTable('bookings', {
   amountPerHour: integer('amount_per_hour').notNull(),
   isDecorationSelected: boolean('is_decoration_selected').default(false),
   decorationAmount: integer('decoration_amount').default(0),
+  discountAmount: integer('discount_amount').default(0),
   totalAmount: integer('total_amount').notNull(),
   paymentStatus: text('payment_status').default('pending'),
   razorpayOrderId: text('razorpay_order_id'),

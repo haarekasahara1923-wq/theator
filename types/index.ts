@@ -33,6 +33,8 @@ export interface BookingFormData {
   amountPerHour: number;
   isDecorationSelected: boolean;
   decorationAmount: number;
+  discountAmount: number;
+  originalAmount: number;
   totalAmount: number;
   // Step 4
   complementaryItems: ComplementaryItemSelection[];

@@ -86,6 +86,7 @@ export async function POST(req: NextRequest) {
       amountPerHour: bookingData.amountPerHour,
       isDecorationSelected: bookingData.isDecorationSelected || false,
       decorationAmount: bookingData.decorationAmount || 0,
+      discountAmount: bookingData.discountAmount || 0,
       totalAmount: amount,
       paymentStatus: 'pending',
       bookingStatus: 'pending',

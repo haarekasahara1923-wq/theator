@@ -135,7 +135,10 @@ export default function BookingTicket({ booking }: { booking: any }) {
             
             {/* Amount Paid Stamp */}
             <div className="absolute right-4 bottom-4 w-24 h-24 rounded-full border-4 border-[#38A169]/30 text-[#38A169] flex items-center justify-center flex-col opacity-60 rotate-[-15deg] pointer-events-none print:border-gray-400 print:text-gray-700">
-               <span className="font-bold uppercase text-xs">Paid</span>
+               <span className="font-bold uppercase text-[10px]">Paid</span>
+               {booking.discountAmount > 0 && (
+                 <span className="text-[8px] line-through opacity-50">₹{booking.originalAmount}</span>
+               )}
                <span className="font-bold">{formatCurrency(booking.totalAmount)}</span>
             </div>
           </div>
