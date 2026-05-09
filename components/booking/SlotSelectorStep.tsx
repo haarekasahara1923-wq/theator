@@ -181,10 +181,10 @@ export default function SlotSelectorStep() {
     setShowDecorationPopup(true);
   };
 
-  const handleDecorationChoice = (selected: boolean) => {
+  const handleDecorationChoice = (amount: number) => {
     updateFormData({
-      isDecorationSelected: selected,
-      decorationAmount: selected ? decorationPrice : 0,
+      isDecorationSelected: amount > 0,
+      decorationAmount: amount,
     });
     setShowDecorationPopup(false);
     nextStep();
@@ -433,37 +433,66 @@ export default function SlotSelectorStep() {
             <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#D4AF37]/0 via-[#D4AF37] to-[#D4AF37]/0" />
             
             <div className="text-center mb-6">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-[#D4AF37]/10 border border-[#D4AF37]/20 text-[#D4AF37] mb-4">
-                <Gift size={40} className="animate-pulse" />
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#D4AF37]/10 border border-[#D4AF37]/20 text-[#D4AF37] mb-4">
+                <Gift size={32} className="animate-pulse" />
               </div>
-              <h3 className="font-heading text-2xl font-bold text-[#F7FAFC] mb-2">Make it Special? ✨</h3>
-              <p className="text-[#A0AEC0]">
-                Would you like to add decoration for your celebration? Perfect for Birthdays & Anniversaries!
+              <h3 className="font-heading text-2xl font-bold text-[#F7FAFC] mb-2">Celebrate in Style! ✨</h3>
+              <p className="text-[#A0AEC0] text-sm">
+                Choose a decoration package for your special occasion.
               </p>
             </div>
 
-            <div className="bg-[#1a1a2e] rounded-2xl p-4 mb-6 border border-[#1E1E2E] flex justify-between items-center">
-              <div>
-                <span className="text-sm text-[#A0AEC0] block">Decoration Charges</span>
-                <span className="text-xl font-bold text-[#D4AF37]">₹{decorationPrice}/-</span>
-              </div>
-              <div className="text-xs bg-[#D4AF37]/20 text-[#D4AF37] px-2 py-1 rounded-full font-semibold">
-                FIXED RATE
-              </div>
-            </div>
-            
             <div className="grid gap-3">
-              <button
-                onClick={() => handleDecorationChoice(true)}
-                className="w-full py-4 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#B8960C] text-[#0A0A0F] font-bold text-lg hover:shadow-[0_0_20px_rgba(212,175,55,0.4)] transition-all flex items-center justify-center gap-2"
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => handleDecorationChoice(decorationPrice)}
+                className="w-full p-4 rounded-2xl bg-[#1a1a2e] border border-[#D4AF37]/30 hover:border-[#D4AF37] transition-all flex items-center justify-between group"
               >
-                <Gift size={20} /> Yes, Book Decoration
-              </button>
-              <button
-                onClick={() => handleDecorationChoice(false)}
-                className="w-full py-3 rounded-xl border border-[#1E1E2E] text-[#A0AEC0] hover:bg-[#1E1E2E] transition-all font-medium"
+                <div className="text-left">
+                  <span className="block font-bold text-[#F7FAFC]">Standard</span>
+                  <span className="text-xs text-[#A0AEC0]">Basic celebration decor</span>
+                </div>
+                <div className="text-right">
+                  <span className="block font-bold text-[#D4AF37]">₹{decorationPrice}</span>
+                </div>
+              </motion.button>
+
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => handleDecorationChoice(1500)}
+                className="w-full p-4 rounded-2xl bg-[#1a1a2e] border border-[#D4AF37]/30 hover:border-[#D4AF37] transition-all flex items-center justify-between group"
               >
-                Proceed without Decoration
+                <div className="text-left">
+                  <span className="block font-bold text-[#F7FAFC]">Premium</span>
+                  <span className="text-xs text-[#A0AEC0]">Extended floral & balloons</span>
+                </div>
+                <div className="text-right">
+                  <span className="block font-bold text-[#D4AF37]">₹1500</span>
+                </div>
+              </motion.button>
+
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => handleDecorationChoice(2100)}
+                className="w-full p-4 rounded-2xl bg-gradient-to-r from-[#D4AF37]/20 to-[#B8960C]/20 border-2 border-[#D4AF37] hover:shadow-[0_0_15px_rgba(212,175,55,0.3)] transition-all flex items-center justify-between group"
+              >
+                <div className="text-left">
+                  <span className="block font-bold text-[#F7FAFC]">Grand</span>
+                  <span className="text-xs text-[#A0AEC0]">Ultimate luxury setup</span>
+                </div>
+                <div className="text-right">
+                  <span className="block font-bold text-[#D4AF37] text-lg">₹2100</span>
+                </div>
+              </motion.button>
+
+              <button
+                onClick={() => handleDecorationChoice(0)}
+                className="w-full py-3 mt-2 rounded-xl border border-[#1E1E2E] text-[#A0AEC0] hover:bg-[#1E1E2E] transition-all font-medium text-sm"
+              >
+                No Decoration, thank you
               </button>
             </div>
 
