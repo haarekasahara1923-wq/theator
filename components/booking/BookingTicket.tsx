@@ -59,7 +59,7 @@ export default function BookingTicket({ booking }: { booking: any }) {
             <div className="flex justify-center mb-4">
               <Film size={48} className="text-[#0A0A0F] opacity-90" />
             </div>
-            <h2 className="font-heading text-3xl font-bold mb-1 tracking-wider uppercase">NV Theatre</h2>
+            <h2 className="font-heading text-3xl font-bold mb-1 tracking-wider uppercase">SWAD & SCREENS</h2>
             <p className="font-medium opacity-80 uppercase tracking-widest text-sm">Admit One Group</p>
           </div>
 

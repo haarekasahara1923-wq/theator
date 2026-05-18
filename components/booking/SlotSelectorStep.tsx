@@ -497,7 +497,7 @@ export default function SlotSelectorStep() {
             </div>
 
             <p className="mt-6 text-center text-[10px] text-[#4A5568] uppercase tracking-widest">
-              NV Theatre • Premium Experiences
+              SWAD & SCREENS • Premium Experiences
             </p>
           </motion.div>
         </div>

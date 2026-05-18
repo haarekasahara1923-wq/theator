@@ -35,7 +35,7 @@ export function generateEmailHTML(data: BookingEmailData): string {
       <!-- Header -->
       <div style="background:linear-gradient(135deg,#12121A,#1a1a2e);padding:40px;text-align:center;border-bottom:1px solid #D4AF37;">
         <div style="font-size:48px;margin-bottom:8px;">🎬</div>
-        <h1 style="color:#D4AF37;margin:0;font-size:32px;letter-spacing:2px;">NV THEATRE</h1>
+        <h1 style="color:#D4AF37;margin:0;font-size:32px;letter-spacing:2px;">SWAD & SCREENS</h1>
         <p style="color:#A0AEC0;margin:8px 0 0;font-size:14px;letter-spacing:1px;">LUXURY PRIVATE CINEMA EXPERIENCE</p>
       </div>
       <!-- Confirmation Banner -->
@@ -69,7 +69,7 @@ export function generateEmailHTML(data: BookingEmailData): string {
       </div>
       <!-- Footer -->
       <div style="background:#0A0A0F;padding:24px;text-align:center;border-top:1px solid #1E1E2E;">
-        <p style="color:#D4AF37;margin:0 0 8px;font-size:16px;">📍 NV Theatre</p>
+        <p style="color:#D4AF37;margin:0 0 8px;font-size:16px;">📍 SWAD & SCREENS</p>
         <p style="color:#A0AEC0;margin:0;font-size:12px;">This is an automated booking confirmation. Please do not reply to this email.</p>
       </div>
     </div>
@@ -87,7 +87,7 @@ export function generateTicketPDF(data: BookingEmailData): Promise<Buffer> {
       doc.on('end', () => resolve(Buffer.concat(buffers)));
 
       // Ticket Header
-      doc.fontSize(30).fillColor('#D4AF37').text('NV THEATRE', { align: 'center' });
+      doc.fontSize(30).fillColor('#D4AF37').text('SWAD & SCREENS', { align: 'center' });
       doc.fontSize(12).fillColor('#666666').text('PRIVATE CINE EXPERIENCE', { align: 'center' });
       doc.moveDown(2);
 
@@ -142,16 +142,16 @@ export async function sendBookingConfirmationEmail(data: BookingEmailData) {
     }
 
     const payload: any = {
-      from: process.env.RESEND_FROM_EMAIL || 'NV Theatre <bookings@nvtheatre.in>',
+      from: process.env.RESEND_FROM_EMAIL || 'SWAD & SCREENS <bookings@nvtheatre.in>',
       to: data.customerEmail,
-      subject: `🎬 NV Theatre Booking Confirmed — #${data.bookingRef}`,
+      subject: `🎬 SWAD & SCREENS Booking Confirmed — #${data.bookingRef}`,
       html: generateEmailHTML(data),
     };
 
     if (pdfBuffer) {
       payload.attachments = [
         {
-          filename: `NV_Theatre_Ticket_${data.bookingRef}.pdf`,
+          filename: `SWAD_SCREENS_Ticket_${data.bookingRef}.pdf`,
           content: pdfBuffer,
         },
       ];

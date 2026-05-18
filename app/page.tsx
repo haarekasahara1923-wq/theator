@@ -58,8 +58,8 @@ export default function HomePage() {
             variants={fadeUp}
             className="font-heading text-6xl md:text-8xl font-bold mb-4"
           >
-            <span className="text-gold-gradient">NV</span>{' '}
-            <span className="text-[#F7FAFC]">Theatre</span>
+            <span className="text-gold-gradient">SWAD</span>{' '}
+            <span className="text-[#F7FAFC]">& SCREENS</span>
           </motion.h1>
 
           <motion.p
@@ -366,7 +366,7 @@ export default function HomePage() {
             className="text-center mb-16"
           >
             <motion.h2 variants={fadeUp} className="font-heading text-4xl font-bold text-[#F7FAFC]">
-              Why Choose NV Theatre?
+              Why Choose SWAD & SCREENS?
             </motion.h2>
           </motion.div>
 
@@ -432,9 +432,9 @@ export default function HomePage() {
         <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2 text-[#D4AF37] font-heading font-bold text-lg">
             <Film size={18} />
-            NV Theatre
+            SWAD & SCREENS
           </div>
-          <p>© {new Date().getFullYear()} NV Theatre. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} SWAD & SCREENS. All rights reserved.</p>
           <Link href="/admin/login" className="text-[#A0AEC0] hover:text-[#D4AF37] transition-colors text-xs">
             Admin Login
           </Link>

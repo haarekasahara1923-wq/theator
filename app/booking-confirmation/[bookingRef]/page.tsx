@@ -7,8 +7,8 @@ import type { Metadata } from 'next';
 
 export async function generateMetadata({ params }: { params: { bookingRef: string } }): Promise<Metadata> {
   return {
-    title: `Booking Confirmed — ${params.bookingRef} | NV Theatre`,
-    description: 'Your NV Theatre booking has been confirmed.',
+    title: `Booking Confirmed — ${params.bookingRef} | SWAD & SCREENS`,
+    description: 'Your SWAD & SCREENS booking has been confirmed.',
   };
 }
 

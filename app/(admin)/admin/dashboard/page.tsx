@@ -36,7 +36,7 @@ export default function Dashboard() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="font-heading text-3xl font-bold text-[#F7FAFC]">Dashboard Overview</h1>
-          <p className="text-[#A0AEC0]">Real-time metrics for NV Theatre</p>
+          <p className="text-[#A0AEC0]">Real-time metrics for SWAD & SCREENS</p>
         </div>
         <button
           onClick={fetchStats}

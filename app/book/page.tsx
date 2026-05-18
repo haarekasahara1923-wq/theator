@@ -30,7 +30,7 @@ export default function BookPage() {
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 text-[#D4AF37] font-heading font-bold text-xl">
             <Film size={22} />
-            NV Theatre
+            SWAD & SCREENS
           </Link>
           <div className="text-[#A0AEC0] text-sm">Private Theatre Booking</div>
         </div>

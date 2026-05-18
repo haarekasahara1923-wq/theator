@@ -16,11 +16,11 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: 'NV Theatre — Private Mini Cinema Experience',
-  description: 'Book your exclusive private mini-theatre experience at NV Theatre. Ideal for couples and groups. Hourly slots, multiple screens, luxury ambiance.',
-  keywords: 'mini theatre, private cinema, NV Theatre, book theatre, couple experience',
+  title: 'SWAD & SCREENS — Private Mini Cinema Experience',
+  description: 'Book your exclusive private mini-theatre experience at SWAD & SCREENS. Ideal for couples and groups. Hourly slots, multiple screens, luxury ambiance.',
+  keywords: 'mini theatre, private cinema, SWAD & SCREENS, book theatre, couple experience',
   openGraph: {
-    title: 'NV Theatre — Private Mini Cinema Experience',
+    title: 'SWAD & SCREENS — Private Mini Cinema Experience',
     description: 'Book your exclusive private mini-theatre experience.',
     type: 'website',
   },

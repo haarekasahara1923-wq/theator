@@ -78,7 +78,7 @@ export default function OrderSummaryStep() {
         key,
         amount,
         currency: 'INR',
-        name: 'NV Theatre',
+        name: 'SWAD & SCREENS',
         description: `Private Theatre Booking — ${formData.screenName}`,
         order_id: orderId,
         prefill: {
@@ -152,7 +152,7 @@ export default function OrderSummaryStep() {
         <div className="bg-gradient-to-r from-[#12121A] to-[#1a1a2e] px-6 py-4 border-b border-[#1E1E2E]">
           <div className="flex items-center gap-3">
             <Film size={20} className="text-[#D4AF37]" />
-            <span className="font-heading font-bold text-[#F7FAFC] text-lg">NV Theatre</span>
+            <span className="font-heading font-bold text-[#F7FAFC] text-lg">SWAD & SCREENS</span>
           </div>
         </div>
 
