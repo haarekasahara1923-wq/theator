@@ -29,6 +29,15 @@ export default function SlotSelectorStep() {
   const [showDecorationPopup, setShowDecorationPopup] = useState(false);
   const [decorationPrice, setDecorationPrice] = useState(800);
 
+  interface DecorationPackage {
+    id: string;
+    name: string;
+    desc: string;
+    price: number;
+    active: boolean;
+  }
+  const [decorationPackages, setDecorationPackages] = useState<DecorationPackage[]>([]);
+
   const fetchSettings = useCallback(async () => {
     try {
       const res = await fetch('/api/settings');
@@ -36,6 +45,16 @@ export default function SlotSelectorStep() {
         const data = await res.json();
         if (data.decoration_price) {
           setDecorationPrice(parseInt(data.decoration_price));
+        }
+        if (data.decoration_packages) {
+          try {
+            const parsed = JSON.parse(data.decoration_packages);
+            if (Array.isArray(parsed)) {
+              setDecorationPackages(parsed.filter((p: any) => p.active));
+            }
+          } catch (e) {
+            console.error('Failed to parse decoration packages:', e);
+          }
         }
       }
     } catch (error) {
@@ -442,55 +461,86 @@ export default function SlotSelectorStep() {
               </p>
             </div>
 
-            <div className="grid gap-3">
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => handleDecorationChoice(decorationPrice)}
-                className="w-full p-4 rounded-2xl bg-[#1a1a2e] border border-[#D4AF37]/30 hover:border-[#D4AF37] transition-all flex items-center justify-between group"
-              >
-                <div className="text-left">
-                  <span className="block font-bold text-[#F7FAFC]">Standard</span>
-                  <span className="text-xs text-[#A0AEC0]">Basic celebration decor</span>
-                </div>
-                <div className="text-right">
-                  <span className="block font-bold text-[#D4AF37]">₹{decorationPrice}</span>
-                </div>
-              </motion.button>
+            <div className="grid gap-3 max-h-[350px] overflow-y-auto pr-1">
+              {decorationPackages.length > 0 ? (
+                decorationPackages.map((pkg) => {
+                  const isGrand = pkg.name.toLowerCase() === 'grand' || pkg.price >= 2000;
+                  return (
+                    <motion.button
+                      key={pkg.id}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => handleDecorationChoice(pkg.price)}
+                      className={`w-full p-4 rounded-2xl transition-all flex items-center justify-between group ${
+                        isGrand 
+                          ? 'bg-gradient-to-r from-[#D4AF37]/20 to-[#B8960C]/20 border-2 border-[#D4AF37] hover:shadow-[0_0_15px_rgba(212,175,55,0.3)]' 
+                          : 'bg-[#1a1a2e] border border-[#D4AF37]/30 hover:border-[#D4AF37]'
+                      }`}
+                    >
+                      <div className="text-left">
+                        <span className="block font-bold text-[#F7FAFC]">{pkg.name}</span>
+                        <span className="text-xs text-[#A0AEC0]">{pkg.desc}</span>
+                      </div>
+                      <div className="text-right">
+                        <span className={`block font-bold text-[#D4AF37] ${isGrand ? 'text-lg' : ''}`}>
+                          ₹{pkg.price}
+                        </span>
+                      </div>
+                    </motion.button>
+                  );
+                })
+              ) : (
+                <>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => handleDecorationChoice(decorationPrice)}
+                    className="w-full p-4 rounded-2xl bg-[#1a1a2e] border border-[#D4AF37]/30 hover:border-[#D4AF37] transition-all flex items-center justify-between group"
+                  >
+                    <div className="text-left">
+                      <span className="block font-bold text-[#F7FAFC]">Standard</span>
+                      <span className="text-xs text-[#A0AEC0]">Basic celebration decor</span>
+                    </div>
+                    <div className="text-right">
+                      <span className="block font-bold text-[#D4AF37]">₹{decorationPrice}</span>
+                    </div>
+                  </motion.button>
 
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => handleDecorationChoice(1500)}
-                className="w-full p-4 rounded-2xl bg-[#1a1a2e] border border-[#D4AF37]/30 hover:border-[#D4AF37] transition-all flex items-center justify-between group"
-              >
-                <div className="text-left">
-                  <span className="block font-bold text-[#F7FAFC]">Premium</span>
-                  <span className="text-xs text-[#A0AEC0]">Extended floral & balloons</span>
-                </div>
-                <div className="text-right">
-                  <span className="block font-bold text-[#D4AF37]">₹1500</span>
-                </div>
-              </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => handleDecorationChoice(1500)}
+                    className="w-full p-4 rounded-2xl bg-[#1a1a2e] border border-[#D4AF37]/30 hover:border-[#D4AF37] transition-all flex items-center justify-between group"
+                  >
+                    <div className="text-left">
+                      <span className="block font-bold text-[#F7FAFC]">Premium</span>
+                      <span className="text-xs text-[#A0AEC0]">Extended floral & balloons</span>
+                    </div>
+                    <div className="text-right">
+                      <span className="block font-bold text-[#D4AF37]">₹1500</span>
+                    </div>
+                  </motion.button>
 
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => handleDecorationChoice(2100)}
-                className="w-full p-4 rounded-2xl bg-gradient-to-r from-[#D4AF37]/20 to-[#B8960C]/20 border-2 border-[#D4AF37] hover:shadow-[0_0_15px_rgba(212,175,55,0.3)] transition-all flex items-center justify-between group"
-              >
-                <div className="text-left">
-                  <span className="block font-bold text-[#F7FAFC]">Grand</span>
-                  <span className="text-xs text-[#A0AEC0]">Ultimate luxury setup</span>
-                </div>
-                <div className="text-right">
-                  <span className="block font-bold text-[#D4AF37] text-lg">₹2100</span>
-                </div>
-              </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => handleDecorationChoice(2100)}
+                    className="w-full p-4 rounded-2xl bg-gradient-to-r from-[#D4AF37]/20 to-[#B8960C]/20 border-2 border-[#D4AF37] hover:shadow-[0_0_15px_rgba(212,175,55,0.3)] transition-all flex items-center justify-between group"
+                  >
+                    <div className="text-left">
+                      <span className="block font-bold text-[#F7FAFC]">Grand</span>
+                      <span className="text-xs text-[#A0AEC0]">Ultimate luxury setup</span>
+                    </div>
+                    <div className="text-right">
+                      <span className="block font-bold text-[#D4AF37] text-lg">₹2100</span>
+                    </div>
+                  </motion.button>
+                </>
+              )}
 
               <button
                 onClick={() => handleDecorationChoice(0)}
-                className="w-full py-3 mt-2 rounded-xl border border-[#1E1E2E] text-[#A0AEC0] hover:bg-[#1E1E2E] transition-all font-medium text-sm"
+                className="w-full py-3 mt-2 rounded-xl border border-[#1E1E2E] text-[#A0AEC0] hover:bg-[#1E1E2E] transition-all font-medium text-sm focus:outline-none"
               >
                 No Decoration, thank you
               </button>

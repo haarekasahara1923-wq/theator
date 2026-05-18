@@ -17,6 +17,15 @@ export async function GET() {
       settingsObj.decoration_price = '800';
     }
 
+    // Default decoration packages if not set
+    if (!settingsObj.decoration_packages) {
+      settingsObj.decoration_packages = JSON.stringify([
+        { id: 'standard', name: 'Standard', desc: 'Basic celebration decor', price: 800, active: true },
+        { id: 'premium', name: 'Premium', desc: 'Extended floral & balloons', price: 1500, active: true },
+        { id: 'grand', name: 'Grand', desc: 'Ultimate luxury setup', price: 2100, active: true }
+      ]);
+    }
+
     return NextResponse.json(settingsObj);
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch settings' }, { status: 500 });
