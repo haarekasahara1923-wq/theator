@@ -57,7 +57,7 @@ export default function Sidebar() {
               <div className="w-8 h-8 rounded-lg bg-[#D4AF37]/20 flex items-center justify-center text-[#D4AF37]">
                 <Film size={18} />
               </div>
-              <span className="font-heading font-bold text-lg text-[#F7FAFC]">NV Admin</span>
+              <span className="font-heading font-bold text-lg text-[#F7FAFC]">SWAD Admin</span>
             </div>
             <button onClick={closeSidebar} className="md:hidden text-[#A0AEC0]">
               <X size={24} />
