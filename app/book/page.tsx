@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { Film } from 'lucide-react';
+import { Film, QrCode } from 'lucide-react';
 import Link from 'next/link';
 import { useBookingStore } from '@/store/bookingStore';
 import DatePickerStep from '@/components/booking/DatePickerStep';
@@ -10,10 +10,11 @@ import PartyTypeStep from '@/components/booking/PartyTypeStep';
 import ComplementaryStep from '@/components/booking/ComplementaryStep';
 import CustomerFormStep from '@/components/booking/CustomerFormStep';
 import OrderSummaryStep from '@/components/booking/OrderSummaryStep';
+import toast from 'react-hot-toast';
 
 const STEPS = [
   { id: 1, label: 'Date' },
-  { id: 2, label: 'Screen &amp; Slot' },
+  { id: 2, label: 'Screen & Slot' },
   { id: 3, label: 'Party' },
   { id: 4, label: 'Extras' },
   { id: 5, label: 'Details' },
@@ -23,16 +24,50 @@ const STEPS = [
 export default function BookPage() {
   const { step } = useBookingStore();
 
+  const downloadQRCode = async () => {
+    try {
+      const siteUrl = typeof window !== 'undefined' ? window.location.origin : 'https://swadscreens.in';
+      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&color=d4af37&bgcolor=0a0a0f&data=${encodeURIComponent(siteUrl)}`;
+      
+      const response = await fetch(qrUrl);
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = 'swad-screens-qr.png';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(blobUrl);
+      
+      toast.success('QR Code downloaded successfully! 📱');
+    } catch (error) {
+      console.error('Failed to download QR code:', error);
+      toast.error('Failed to download QR Code. Please try again.');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#0A0A0F]">
       {/* Header */}
-      <header className="border-b border-[#1E1E2E] px-4 py-4">
+      <header className="border-b border-[#1E1E2E] px-4 py-4 bg-[#0A0A0F]/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 text-[#D4AF37] font-heading font-bold text-xl">
+          <Link href="/" className="flex items-center gap-2 text-[#D4AF37] font-heading font-bold text-xl hover:opacity-90 transition-opacity">
             <Film size={22} />
             SWAD & SCREENS
           </Link>
-          <div className="text-[#A0AEC0] text-sm">Private Theatre Booking</div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={downloadQRCode}
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#D4AF37]/10 text-[#D4AF37] border border-[#D4AF37]/20 hover:bg-[#D4AF37]/20 transition-all font-bold text-xs"
+              title="Download QR Code to Share"
+            >
+              <QrCode size={14} />
+              <span>Download QR</span>
+            </button>
+            <div className="text-[#A0AEC0] text-sm hidden sm:block">Private Theatre Booking</div>
+          </div>
         </div>
       </header>
 

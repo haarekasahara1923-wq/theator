@@ -2,8 +2,9 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Film, Clock, Users, Star, ArrowRight, Sparkles, Shield, Zap } from 'lucide-react';
+import { Film, Clock, Users, Star, ArrowRight, Sparkles, Shield, Zap, QrCode } from 'lucide-react';
 import { useBookingStore } from '@/store/bookingStore';
+import toast from 'react-hot-toast';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -18,8 +19,59 @@ const stagger = {
 export default function HomePage() {
   const { reset } = useBookingStore();
 
+  const downloadQRCode = async () => {
+    try {
+      const siteUrl = typeof window !== 'undefined' ? window.location.origin : 'https://swadscreens.in';
+      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&color=d4af37&bgcolor=0a0a0f&data=${encodeURIComponent(siteUrl)}`;
+      
+      const response = await fetch(qrUrl);
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = 'swad-screens-qr.png';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(blobUrl);
+      
+      toast.success('QR Code downloaded successfully! 📱');
+    } catch (error) {
+      console.error('Failed to download QR code:', error);
+      toast.error('Failed to download QR Code. Please try again.');
+    }
+  };
+
   return (
-    <main className="min-h-screen overflow-x-hidden">
+    <main className="min-h-screen overflow-x-hidden pt-20">
+      {/* ─── Premium Sticky Header ─── */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-[#0A0A0F]/70 backdrop-blur-md border-b border-[#1E1E2E]/40 px-6 py-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2.5 text-[#D4AF37] font-heading font-bold text-2xl hover:opacity-90 transition-opacity">
+            <Film size={26} className="text-[#D4AF37]" />
+            <span className="tracking-wide">SWAD & SCREENS</span>
+          </Link>
+          
+          <div className="flex items-center gap-4">
+            <button
+              onClick={downloadQRCode}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#D4AF37]/10 text-[#D4AF37] border border-[#D4AF37]/20 hover:bg-[#D4AF37]/20 transition-all font-bold text-sm"
+              title="Download QR Code to Share"
+            >
+              <QrCode size={16} />
+              <span>Get QR Code</span>
+            </button>
+            <Link
+              href="/book"
+              onClick={() => reset()}
+              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#B8960C] text-[#0A0A0F] font-bold text-sm hover:shadow-[0_0_20px_rgba(212,175,55,0.3)] transition-all duration-300 hover:scale-105"
+            >
+              Book Now
+            </Link>
+          </div>
+        </div>
+      </header>
       {/* ─── Hero ─── */}
       <section className="relative min-h-screen flex flex-col items-center justify-center text-center px-4">
         {/* Animated background */}
