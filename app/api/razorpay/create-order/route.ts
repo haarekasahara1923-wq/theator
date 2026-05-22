@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
-import { razorpay } from '@/lib/razorpay';
+import { getRazorpay } from '@/lib/razorpay';
 import { redis } from '@/lib/redis';
 import { db } from '@/lib/db';
 import { bookings } from '@/lib/schema';
@@ -43,7 +43,6 @@ export async function POST(req: NextRequest) {
     }
 
     if (failedLocks.length > 0) {
-      // Release any acquired locks
       for (const key of lockKeys) {
         await redis.del(key).catch(() => null);
       }
@@ -52,6 +51,9 @@ export async function POST(req: NextRequest) {
         { status: 409 }
       );
     }
+
+    // Initialize Razorpay lazily — reads env vars fresh at call time
+    const razorpay = getRazorpay();
 
     // Create Razorpay order
     const order = await razorpay.orders.create({
@@ -103,9 +105,9 @@ export async function POST(req: NextRequest) {
     });
   } catch (error: any) {
     console.error('CRITICAL: Create order error:', error);
-    return NextResponse.json({ 
-      error: 'Failed to create order', 
-      details: error.message || 'Unknown error'
+    return NextResponse.json({
+      error: 'Failed to create order',
+      details: error.message || 'Unknown error',
     }, { status: 500 });
   }
 }
