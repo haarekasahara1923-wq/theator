@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Playfair_Display, DM_Sans } from 'next/font/google';
 import './globals.css';
 import { Toaster } from 'react-hot-toast';
+import Script from 'next/script';
 
 const playfair = Playfair_Display({
   subsets: ['latin'],
@@ -43,6 +44,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             error: { iconTheme: { primary: '#E53E3E', secondary: '#F7FAFC' } },
           }}
         />
+        <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
       </body>
     </html>
   );

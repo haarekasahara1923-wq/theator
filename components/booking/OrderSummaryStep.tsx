@@ -87,6 +87,22 @@ export default function OrderSummaryStep() {
           email: formData.customerEmail || '',
         },
         theme: { color: '#D4AF37' },
+        config: {
+          display: {
+            blocks: {
+              upi: {
+                name: 'UPI / QR Code',
+                instruments: [
+                  {
+                    method: 'upi',
+                    flows: ['intent', 'qr']
+                  }
+                ]
+              }
+            },
+            sequence: ['block.upi', 'block.card', 'block.netbanking']
+          }
+        },
         modal: {
           ondismiss: () => {
             toast.error('Payment cancelled. Your slot hold will expire in 5 minutes.');
