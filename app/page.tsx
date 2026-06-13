@@ -1,10 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { Film, Clock, Users, Star, ArrowRight, Sparkles, Shield, Zap, QrCode } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Film, Clock, Users, Star, ArrowRight, Sparkles, Shield, Zap, QrCode, Menu, X, MessageCircle } from 'lucide-react';
 import { useBookingStore } from '@/store/bookingStore';
 import toast from 'react-hot-toast';
+import { useState } from 'react';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -18,6 +19,7 @@ const stagger = {
 
 export default function HomePage() {
   const { reset } = useBookingStore();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const downloadQRCode = async () => {
     try {
@@ -52,8 +54,9 @@ export default function HomePage() {
             <Film size={26} className="text-[#D4AF37]" />
             <span className="tracking-wide">SWAD & SCREENS</span>
           </Link>
-          
-          <div className="flex items-center gap-4">
+
+          {/* Desktop Nav */}
+          <div className="hidden md:flex items-center gap-4">
             <button
               onClick={downloadQRCode}
               className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#D4AF37]/10 text-[#D4AF37] border border-[#D4AF37]/20 hover:bg-[#D4AF37]/20 transition-all font-bold text-sm"
@@ -70,8 +73,99 @@ export default function HomePage() {
               Book Now
             </Link>
           </div>
+
+          {/* Mobile Hamburger Button */}
+          <button
+            className="md:hidden p-2 text-[#D4AF37] hover:bg-[#D4AF37]/10 rounded-lg transition-colors"
+            onClick={() => setMobileMenuOpen(true)}
+            aria-label="Open menu"
+          >
+            <Menu size={26} />
+          </button>
         </div>
       </header>
+
+      {/* ─── Mobile Slide-in Drawer ─── */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              key="backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="md:hidden fixed inset-0 bg-black/60 z-[60] backdrop-blur-sm"
+              onClick={() => setMobileMenuOpen(false)}
+            />
+            {/* Drawer */}
+            <motion.div
+              key="drawer"
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              className="md:hidden fixed top-0 right-0 bottom-0 w-72 z-[70] bg-[#0A0A0F] border-l border-[#1E1E2E] flex flex-col"
+            >
+              {/* Drawer Header */}
+              <div className="flex items-center justify-between px-6 py-5 border-b border-[#1E1E2E]">
+                <div className="flex items-center gap-2 text-[#D4AF37] font-heading font-bold text-xl">
+                  <Film size={22} />
+                  <span>SWAD & SCREENS</span>
+                </div>
+                <button
+                  className="p-2 text-gray-400 hover:text-white hover:bg-[#1E1E2E] rounded-lg transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <X size={22} />
+                </button>
+              </div>
+
+              {/* Drawer Links */}
+              <nav className="flex flex-col gap-2 px-4 py-6 flex-1">
+                <Link
+                  href="/"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-3 px-4 py-4 rounded-xl text-[#F7FAFC] hover:bg-[#1E1E2E] hover:text-[#D4AF37] transition-all font-medium text-lg"
+                >
+                  <Film size={20} />
+                  Home
+                </Link>
+                <Link
+                  href="/book"
+                  onClick={() => { reset(); setMobileMenuOpen(false); }}
+                  className="flex items-center gap-3 px-4 py-4 rounded-xl text-[#F7FAFC] hover:bg-[#1E1E2E] hover:text-[#D4AF37] transition-all font-medium text-lg"
+                >
+                  <Star size={20} />
+                  Book Now
+                </Link>
+                <a
+                  href="https://wa.me/919977623769"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-3 px-4 py-4 rounded-xl text-[#F7FAFC] hover:bg-[#1E1E2E] hover:text-[#D4AF37] transition-all font-medium text-lg"
+                >
+                  <MessageCircle size={20} />
+                  Contact Us
+                </a>
+              </nav>
+
+              {/* Drawer CTA */}
+              <div className="px-4 py-6 border-t border-[#1E1E2E]">
+                <Link
+                  href="/book"
+                  onClick={() => { reset(); setMobileMenuOpen(false); }}
+                  className="flex items-center justify-center gap-2 w-full py-4 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#B8960C] text-[#0A0A0F] font-bold text-base hover:shadow-[0_0_20px_rgba(212,175,55,0.3)] transition-all"
+                >
+                  <Film size={18} />
+                  Book Your Screen
+                </Link>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
       {/* ─── Hero ─── */}
       <section className="relative min-h-screen flex flex-col items-center justify-center text-center px-4">
         {/* Animated background */}
