@@ -23,8 +23,8 @@ export default function HomePage() {
 
   const downloadQRCode = async () => {
     try {
-      const siteUrl = typeof window !== 'undefined' ? window.location.origin : 'https://swadscreens.in';
-      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&color=d4af37&bgcolor=0a0a0f&data=${encodeURIComponent(siteUrl)}`;
+      const apkUrl = 'https://github.com/haarekasahara1923-wq/theator/releases/download/v1.0.0/app-debug.apk';
+      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&color=d4af37&bgcolor=0a0a0f&data=${encodeURIComponent(apkUrl)}`;
       
       const response = await fetch(qrUrl);
       const blob = await response.blob();
@@ -32,13 +32,13 @@ export default function HomePage() {
       
       const link = document.createElement('a');
       link.href = blobUrl;
-      link.download = 'swad-screens-qr.png';
+      link.download = 'swadnscreens-app-download-qr.png';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(blobUrl);
       
-      toast.success('QR Code downloaded successfully! 📱');
+      toast.success('QR Code downloaded! Scan karo aur app install karo 📱');
     } catch (error) {
       console.error('Failed to download QR code:', error);
       toast.error('Failed to download QR Code. Please try again.');
