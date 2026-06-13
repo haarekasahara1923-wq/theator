@@ -3,6 +3,7 @@ import { Playfair_Display, DM_Sans } from 'next/font/google';
 import './globals.css';
 import { Toaster } from 'react-hot-toast';
 import Script from 'next/script';
+import MobileNav from '@/components/MobileNav';
 
 const playfair = Playfair_Display({
   subsets: ['latin'],
@@ -32,6 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${playfair.variable} ${dmSans.variable}`}>
       <body className="min-h-screen bg-[#0A0A0F] text-[#F7FAFC] font-dm-sans antialiased">
         {children}
+        <MobileNav />
         <Toaster
           position="top-right"
           toastOptions={{
