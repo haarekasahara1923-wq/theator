@@ -149,6 +149,13 @@ export default function HomePage() {
                   <MessageCircle size={20} />
                   Contact Us
                 </a>
+                <button
+                  onClick={() => { downloadQRCode(); setMobileMenuOpen(false); }}
+                  className="flex items-center gap-3 px-4 py-4 rounded-xl text-[#F7FAFC] hover:bg-[#1E1E2E] hover:text-[#D4AF37] transition-all font-medium text-lg text-left"
+                >
+                  <QrCode size={20} />
+                  Get App
+                </button>
               </nav>
 
               {/* Drawer CTA */}
