@@ -33,10 +33,10 @@ export default function MobileNav() {
               {...extraProps}
               className="flex flex-col items-center justify-center gap-1 relative w-16"
             >
-              <div className={`p-2 rounded-full transition-colors ${isActive ? 'text-[#D4AF37]' : 'text-gray-400 hover:text-gray-200'}`}>
+              <div className={`p-2 rounded-full transition-colors ${isActive ? 'text-[#D4AF37]' : 'text-[#D4AF37]/50 hover:text-[#D4AF37]/80'}`}>
                 <item.icon size={24} strokeWidth={isActive ? 2.5 : 2} />
               </div>
-              <span className={`text-[10px] font-medium ${isActive ? 'text-[#D4AF37]' : 'text-gray-400'}`}>
+              <span className={`text-[10px] font-medium ${isActive ? 'text-[#D4AF37]' : 'text-[#D4AF37]/50'}`}>
                 {item.label}
               </span>
 
